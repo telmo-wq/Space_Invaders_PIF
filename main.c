@@ -1,108 +1,102 @@
-/*******************************************************************************************
-*
-*   raylib [core] example - Basic 3d example
-*
-*   Welcome to raylib!
-*
-*   To compile example, just press F5.
-*   Note that compiled executable is placed in the same folder as .c file
-*
-*   You can find all basic examples on C:\raylib\raylib\examples folder or
-*   raylib official webpage: www.raylib.com
-*
-*   Enjoy using raylib. :)
-*
-*   This example has been created using raylib 1.0 (www.raylib.com)
-*   raylib is licensed under an unmodified zlib/libpng license (View raylib.h for details)
-*
-*   Copyright (c) 2013-2024 Ramon Santamaria (@raysan5)
-*
-********************************************************************************************/
+#include <raylib.h>
+#define MAX_TIRO 100
 
-#include "raylib.h"
-
-#if defined(PLATFORM_WEB)
-    #include <emscripten/emscripten.h>
-#endif
-
-//----------------------------------------------------------------------------------
-// Local Variables Definition (local to this module)
-//----------------------------------------------------------------------------------
-Camera camera = { 0 };
-Vector3 cubePosition = { 0 };
-
-//----------------------------------------------------------------------------------
-// Local Functions Declaration
-//----------------------------------------------------------------------------------
-static void UpdateDrawFrame(void);          // Update and draw one frame
-
-//----------------------------------------------------------------------------------
-// Main entry point
-//----------------------------------------------------------------------------------
-int main()
+struct tiro
 {
-    // Initialization
-    //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    Vector2 laser;
+};
 
-    InitWindow(screenWidth, screenHeight, "raylib");
+struct inimigo{
+  int pos_x;
+  int pos_y;  
+  struct tiro tiro_inimigo;
+};
 
-    camera.position = (Vector3){ 10.0f, 10.0f, 8.0f };
-    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };
-    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
-    camera.fovy = 60.0f;
-    camera.projection = CAMERA_PERSPECTIVE;
 
-    //--------------------------------------------------------------------------------------
+int main(){
+    
+    int largura=1000;
+    int altura=800;
 
-#if defined(PLATFORM_WEB)
-    emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
-#else
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
+    InitWindow(largura,altura,"Space Invaders");
+    SetTargetFPS(40);
+    InitAudioDevice(); 
 
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
-        UpdateDrawFrame();
+    int x=largura/2;
+    int y=altura-50;
+    int a=0,pontos=0;
+    struct tiro tiros[MAX_TIRO];
+    
+    Music musica = LoadMusicStream("audios/musica.wav");
+    Sound tiro= LoadSound("audios/tiro.wav");
+    Texture2D nave=LoadTexture("sprites/nave_vida_cheia.png");
+    Texture2D piu=LoadTexture("sprites/Zapper.png");
+    Texture2D espaco=LoadTexture("sprites/final.png");
+    Texture2D Nave_de_bonus=LoadTexture("sprites/Nave_de_bonus.png");
+
+    Vector2 posicao_inimigo={400,200};
+    
+    PlayMusicStream(musica);
+    while(!WindowShouldClose()){
+        UpdateMusicStream(musica);
+
+        if(IsKeyDown(KEY_S) && y+3<=altura-50){
+            y+=3;
+        }
+        if(IsKeyDown(KEY_D) && x+3<=largura-50){
+            x+=3;
+        }
+        if(IsKeyDown(KEY_A) && x-3>=0){
+            x-=3;
+        }
+        if(IsKeyDown(KEY_W) && y-3>=0){
+            y-=3;
+        }
+        if(IsKeyPressed(KEY_E)){
+            tiros[a].laser.x=x;
+            tiros[a].laser.y=y;
+            a++;
+            if(a==MAX_TIRO){
+                a=0;
+            }
+            PlaySound(tiro); 
+            
+        }
+        Rectangle rectNaves_de_Bonus = { posicao_inimigo.x, posicao_inimigo.y, Nave_de_bonus.width, Nave_de_bonus.height };
+        for (int i = 0; i < a; i++){
+            tiros[i].laser.y-=10;
+            Rectangle rectTiro = {tiros[i].laser.x,tiros[i].laser.y, 5, 15};
+            if(CheckCollisionRecs(rectNaves_de_Bonus,rectTiro)){
+                pontos+=100;
+                tiros[i].laser.y=-10;
+
+            }
+        }
+        
+        
+
+
+        BeginDrawing();
+        ClearBackground(WHITE);
+        DrawTexture(espaco, 0, 0, WHITE);
+        DrawTexture(nave,x,y,WHITE);
+        DrawText(TextFormat("SCORE: %i", pontos), 0, 0, 40, MAROON);
+        DrawTexture(Nave_de_bonus,posicao_inimigo.x,posicao_inimigo.y,WHITE);
+        for (int i = 0; i < a; i++){
+            if(tiros[i].laser.y>0){
+            DrawTexture(piu,tiros[i].laser.x,tiros[i].laser.y,WHITE);
+            }
+        }   
+        
+        EndDrawing();
     }
-#endif
-
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();                  // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
+    StopMusicStream(musica);
+    UnloadMusicStream(musica);
+    UnloadSound(tiro);
+    UnloadTexture(nave);
+    UnloadTexture(espaco);
+    UnloadTexture(piu);
+    CloseAudioDevice();
+    CloseWindow();
     return 0;
-}
-
-// Update and draw game frame
-static void UpdateDrawFrame(void)
-{
-    // Update
-    //----------------------------------------------------------------------------------
-    UpdateCamera(&camera, CAMERA_ORBITAL);
-    //----------------------------------------------------------------------------------
-
-    // Draw
-    //----------------------------------------------------------------------------------
-    BeginDrawing();
-
-        ClearBackground(RAYWHITE);
-
-        BeginMode3D(camera);
-
-            DrawCube(cubePosition, 2.0f, 2.0f, 2.0f, RED);
-            DrawCubeWires(cubePosition, 2.0f, 2.0f, 2.0f, MAROON);
-            DrawGrid(10, 1.0f);
-
-        EndMode3D();
-
-        DrawText("This is a raylib example", 10, 40, 20, DARKGRAY);
-
-        DrawFPS(10, 10);
-
-    EndDrawing();
-    //----------------------------------------------------------------------------------
 }
