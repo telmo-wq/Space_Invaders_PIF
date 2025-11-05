@@ -34,7 +34,7 @@ int main(){
     Texture2D espaco=LoadTexture("sprites/final.png");
     Texture2D Nave_de_bonus=LoadTexture("sprites/Nave_de_bonus.png");
 
-    Vector2 posicao_inimigo={400,200};
+    Vector2 posicao_inimigo={400,30};
     
     PlayMusicStream(musica);
     while(!WindowShouldClose()){
@@ -89,6 +89,12 @@ int main(){
         }   
         
         EndDrawing();
+
+        posicao_inimigo.y += GetFrameTime() * 200;
+
+        if (posicao_inimigo.y > 700){
+            posicao_inimigo.y = 30;
+        }
     }
     StopMusicStream(musica);
     UnloadMusicStream(musica);
