@@ -116,12 +116,13 @@ int main(){
 
     int x=largura/2;
     int y=altura-50;
-    int a=0,pontos=0;
+    int pontos=0;
     struct nave_status status;
     status.vida=4;
     
     Music musica = LoadMusicStream("audios/musica.wav");
     Sound tiro= LoadSound("audios/tiro.wav");
+    //Carregamento de Texturas
     Texture2D nave=LoadTexture("sprites/nave_vida_cheia.png");
     Texture2D nave_levemente_danificada=LoadTexture("sprites/nave_levemente_danificada.png");
     Texture2D nave_danificada=LoadTexture("sprites/nave_ultima_vida.png");
@@ -138,6 +139,8 @@ int main(){
     PlayMusicStream(musica);
     while(!WindowShouldClose()){
         UpdateMusicStream(musica);
+        
+        //Movimentação temporaria
 
         if(IsKeyDown(KEY_S) && y+3<=altura-50){
             y+=3;
@@ -157,6 +160,7 @@ int main(){
             PlaySound(tiro); 
             
         }
+        //rectangle serve para criar a area de collisão
         Rectangle rectNaves_Jogador = { x, y, nave.width, nave.height };
         Rectangle rectNaves_de_Bonus = { posicao_inimigo.x, posicao_inimigo.y, Nave_de_bonus.width, Nave_de_bonus.height };
 
@@ -171,7 +175,8 @@ int main(){
         ClearBackground(WHITE);
         DrawTexture(espaco, 0, 0, WHITE);
         DrawText(TextFormat("SCORE: %i", pontos), 0, 0, 40, MAROON);
-
+        
+        //Vida do jogador
         switch (status.vida) {
             case 4:
                 DrawTexture(nave,x,y,WHITE);
@@ -198,11 +203,14 @@ int main(){
         desenho_tiro(&n,  piu);
         
         EndDrawing();
+        //Movimentação do inimigo
         if(direct_inimigo){
             posicao_inimigo.x += GetFrameTime() * 200;
         } else{
             posicao_inimigo.x -= GetFrameTime() * 200;
         }
+
+        //Direção para onde se move
         if (posicao_inimigo.x < 0){
             direct_inimigo=1;
         } else if(posicao_inimigo.x>largura-100){
