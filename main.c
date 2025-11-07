@@ -3,20 +3,25 @@
 #include <stdlib.h>
 #define MAX_TIRO 100
 
-struct nave_status
-{
-    int vida;
-};
-
 struct tiro
 {
     Vector2 laser;
     struct tiro *next;
 };
 
-struct inimigo{
-  int pos_x;
-  int pos_y;  
+struct Jogador
+{
+    Vector2 pos;
+    int vida;
+    int tipo;
+    struct tiro tiro;
+
+};
+
+
+struct Inimigo{
+  Vector2 pos;
+  int tipo;
   struct tiro tiro_inimigo;
 };
 
@@ -57,7 +62,7 @@ void checar_tiro(struct tiro **lista,Rectangle rectNaves_de_Bonus,int *ponto,flo
     if(aux!=NULL){
         while (aux!=NULL)
         {
-            Rectangle rectTiro = {aux->laser.x,aux->laser.y, 5, 15};
+            Rectangle rectTiro = {aux->laser.x,aux->laser.y, 3, 4};
             if(CheckCollisionRecs(rectNaves_de_Bonus,rectTiro)){
                 struct tiro *temp = aux;
                 if(ant == NULL){
@@ -114,12 +119,12 @@ int main(){
     SetTargetFPS(40);
     InitAudioDevice(); 
 
-    int x=largura/2;
-    int y=altura-50;
     int pontos=0;
-    struct nave_status status;
-    status.vida=4;
-    
+    struct Jogador jogador;
+    struct Inimigo inimigo;
+    jogador.vida=4;
+    inimigo.pos.x=0;
+    inimigo.pos.y=0;
     Music musica = LoadMusicStream("audios/musica.wav");
     Sound tiro= LoadSound("audios/tiro.wav");
     //Carregamento de Texturas
@@ -131,42 +136,43 @@ int main(){
     Texture2D espaco=LoadTexture("sprites/final.png");
     Texture2D Nave_de_bonus=LoadTexture("sprites/Nave_de_bonus.png");
 
-    Vector2 posicao_inimigo={400,30};
 
     int direct_inimigo=1;
     struct tiro *n=NULL;
-    
+
+    jogador.pos.x=altura-10;
+    jogador.pos.y=largura/2;
+
     PlayMusicStream(musica);
     while(!WindowShouldClose()){
         UpdateMusicStream(musica);
         
         //Movimentação temporaria
 
-        if(IsKeyDown(KEY_S) && y+3<=altura-50){
-            y+=3;
+        if(IsKeyDown(KEY_S) && jogador.pos.y+3<=altura-50){
+            jogador.pos.y+=3;
         }
-        if(IsKeyDown(KEY_D) && x+3<=largura-50){
-            x+=3;
+        if(IsKeyDown(KEY_D) && jogador.pos.x+3<=largura-50){
+            jogador.pos.x+=3;
         }
-        if(IsKeyDown(KEY_A) && x-3>=0){
-            x-=3;
+        if(IsKeyDown(KEY_A) && jogador.pos.x-3>=0){
+            jogador.pos.x-=3;
         }
-        if(IsKeyDown(KEY_W) && y-3>=0){
-            y-=3;
+        if(IsKeyDown(KEY_W) && jogador.pos.y-3>=0){
+            jogador.pos.y-=3;
         }
         if(IsKeyPressed(KEY_E)){
-            Vector2 pos={x,y};
-            Atirar(&n, pos);
+            Atirar(&n, jogador.pos);
             PlaySound(tiro); 
             
         }
         //rectangle serve para criar a area de collisão
-        Rectangle rectNaves_Jogador = { x, y, nave.width, nave.height };
-        Rectangle rectNaves_de_Bonus = { posicao_inimigo.x, posicao_inimigo.y, Nave_de_bonus.width, Nave_de_bonus.height };
+        Rectangle rectNaves_Jogador = { jogador.pos.x, jogador.pos.y, nave.width, nave.height };
+        Rectangle rectNaves_de_Bonus = { inimigo.pos.x, inimigo.pos.y, Nave_de_bonus.width-20, Nave_de_bonus.height-10 };
 
         if(CheckCollisionRecs(rectNaves_de_Bonus,rectNaves_Jogador)){
-            status.vida-=1;
-            posicao_inimigo.y = 0;
+            jogador.vida-=1;
+            inimigo.pos.y = 0;
         }
 
 
@@ -177,47 +183,47 @@ int main(){
         DrawText(TextFormat("SCORE: %i", pontos), 0, 0, 40, MAROON);
         
         //Vida do jogador
-        switch (status.vida) {
+        switch (jogador.vida) {
             case 4:
-                DrawTexture(nave,x,y,WHITE);
+                DrawTexture(nave,jogador.pos.x,jogador.pos.y,WHITE);
                 break;
             case 3:
-                DrawTexture(nave_levemente_danificada,x,y,WHITE);
+                DrawTexture(nave_levemente_danificada,jogador.pos.x,jogador.pos.y,WHITE);
                 break;
             
             case 2:
-                DrawTexture(nave_danificada,x,y,WHITE);
+                DrawTexture(nave_danificada,jogador.pos.x,jogador.pos.y,WHITE);
                 break;
 
             case 1:
-                DrawTexture(nave_ultima_vida,x,y,WHITE);
+                DrawTexture(nave_ultima_vida,jogador.pos.x,jogador.pos.y,WHITE);
                 break;
 
             default:
-                status.vida=4;
+                jogador.vida=4;
                 pontos=0;
 
         }
-        DrawTexture(Nave_de_bonus,posicao_inimigo.x,posicao_inimigo.y,WHITE);
+        DrawTexture(Nave_de_bonus,inimigo.pos.x,inimigo.pos.y,WHITE);
         
         desenho_tiro(&n,  piu);
         
         EndDrawing();
         //Movimentação do inimigo
         if(direct_inimigo){
-            posicao_inimigo.x += GetFrameTime() * 200;
+            inimigo.pos.x += GetFrameTime() * 200;
         } else{
-            posicao_inimigo.x -= GetFrameTime() * 200;
+            inimigo.pos.x -= GetFrameTime() * 200;
         }
 
         //Direção para onde se move
-        if (posicao_inimigo.x < 0){
+        if (inimigo.pos.x < 0){
             direct_inimigo=1;
-        } else if(posicao_inimigo.x>largura-100){
+        } else if(inimigo.pos.x>largura-100){
             direct_inimigo=0;
         }
         Avancar_tiro(&n);
-        checar_tiro(&n, rectNaves_de_Bonus, &pontos,&posicao_inimigo.x);
+        checar_tiro(&n, rectNaves_de_Bonus, &pontos,&inimigo.pos.x);
     }
     StopMusicStream(musica);
     UnloadMusicStream(musica);
