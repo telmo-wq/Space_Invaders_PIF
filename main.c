@@ -1,6 +1,7 @@
 #include <raylib.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <unistd.h>
 #define MAX_TIRO 100
 
 struct nave_status
@@ -130,6 +131,8 @@ int main(){
     SetTargetFPS(40);
     InitAudioDevice(); 
 
+    Texture2D array[20];
+
     int x=largura/2;
     int y=altura-50;
     int pontos=0;
@@ -146,7 +149,7 @@ int main(){
     Texture2D espaco=LoadTexture("sprites/final.png");
     Texture2D Nave_de_bonus=LoadTexture("sprites/Nave_de_bonus.png");
 
-    Vector2 posicao_inimigo={400,30};
+    Vector2 posicao_inimigo={GetRandomValue(0, 100),30};
 
     int direct_inimigo=1;
     struct tiro *n=NULL;
@@ -164,7 +167,8 @@ int main(){
                 status.vida = 4;
                 x = largura/2;
                 y = altura-50;
-                posicao_inimigo.x = 400; posicao_inimigo.y = 30;
+                direct_inimigo=1;
+                posicao_inimigo.x = GetRandomValue(0, 100); posicao_inimigo.y = 30;
                 LimparTiros(&n);
                 currentScreen = GAMEPLAY;
             }
@@ -174,7 +178,7 @@ int main(){
                 status.vida = 4;
                 x = largura/2;
                 y = altura-50;
-                posicao_inimigo.x = 400; posicao_inimigo.y = 30;
+                posicao_inimigo.x = GetRandomValue(0, 100); posicao_inimigo.y = 30;
                 LimparTiros(&n);
                 currentScreen = GAMEPLAY;
             } else if(IsKeyPressed(KEY_ESCAPE)){
@@ -201,6 +205,12 @@ int main(){
             if(IsKeyPressed(KEY_ESCAPE)){
                 currentScreen = MENU;
                 LimparTiros(&n);
+            }
+
+            if (posicao_inimigo.y > altura){
+                posicao_inimigo.x = GetRandomValue(0, largura - Nave_de_bonus.width);
+                posicao_inimigo.y = 30;
+                direct_inimigo = 1;
             }
         }
 
@@ -260,9 +270,9 @@ int main(){
 
         if(currentScreen == GAMEPLAY){
             if(direct_inimigo){
-                posicao_inimigo.x += GetFrameTime() * 200;
+                posicao_inimigo.y += GetFrameTime() * 200;
             } else{
-                posicao_inimigo.x -= GetFrameTime() * 200;
+                posicao_inimigo.y -= GetFrameTime() * 200;
             }
             if (posicao_inimigo.x < 0){
                 direct_inimigo=1;
