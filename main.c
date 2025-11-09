@@ -4,21 +4,25 @@
 #include <unistd.h>
 #define MAX_TIRO 100
 
-struct nave_status
-{
-    int vida;
-};
-
 struct tiro
 {
     Vector2 laser;
     struct tiro *next;
 };
 
+struct Jogador
+{
+    Vector2 pos; //posição do jogador
+    int vida;
+    int tipo;
+    int pontos;
+
+};
+
 struct inimigo{
   int pos_x;
   int pos_y;  
-  struct tiro tiro_inimigo;
+  struct tiro *tiro_inimigo;
 };
 
 struct tiro *CriarTiro(Vector2 pos){
@@ -132,12 +136,12 @@ int main(){
     InitAudioDevice(); 
 
     Texture2D array[20];
+    struct Jogador jogador;
 
-    int x=largura/2;
-    int y=altura-50;
-    int pontos=0;
-    struct nave_status status;
-    status.vida=4;
+    jogador.pos.x=largura/2;
+    jogador.pos.y=altura-50;
+    jogador.pontos=0;
+    jogador.vida=4;
     
     Music musica = LoadMusicStream("audios/musica.wav");
     Sound tiro= LoadSound("audios/tiro.wav");
@@ -163,10 +167,10 @@ int main(){
 
         if(currentScreen == MENU){
             if(IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)){
-                pontos = 0;
-                status.vida = 4;
-                x = largura/2;
-                y = altura-50;
+                jogador.pontos = 0;
+                jogador.vida = 4;
+                jogador.pos.x = largura/2;
+                jogador.pos.y = altura-50;
                 direct_inimigo=1;
                 posicao_inimigo.x = GetRandomValue(0, 100); posicao_inimigo.y = 30;
                 LimparTiros(&n);
@@ -174,10 +178,10 @@ int main(){
             }
         } else if(currentScreen == GAMEOVER){
             if(IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)){
-                pontos = 0;
-                status.vida = 4;
-                x = largura/2;
-                y = altura-50;
+                jogador.pontos = 0;
+                jogador.vida = 4;
+                jogador.pos.x = largura/2;
+                jogador.pos.y = altura-50;
                 posicao_inimigo.x = GetRandomValue(0, 100); posicao_inimigo.y = 30;
                 LimparTiros(&n);
                 currentScreen = GAMEPLAY;
@@ -185,21 +189,20 @@ int main(){
                 currentScreen = MENU;
             }
         } else if(currentScreen == GAMEPLAY){
-            if(IsKeyDown(KEY_S) && y+3<=altura-50){
-                y+=3;
+            if(IsKeyDown(KEY_S) && jogador.pos.y+3<=altura-50){
+                jogador.pos.y+=3;
             }
-            if(IsKeyDown(KEY_D) && x+3<=largura-50){
-                x+=3;
+            if(IsKeyDown(KEY_D) && jogador.pos.x+3<=largura-50){
+                jogador.pos.x+=3;
             }
-            if(IsKeyDown(KEY_A) && x-3>=0){
-                x-=3;
+            if(IsKeyDown(KEY_A) && jogador.pos.x-3>=0){
+                jogador.pos.x-=3;
             }
-            if(IsKeyDown(KEY_W) && y-3>=0){
-                y-=3;
+            if(IsKeyDown(KEY_W) && jogador.pos.y-3>=0){
+                jogador.pos.y-=3;
             }
             if(IsKeyPressed(KEY_E)){
-                Vector2 pos={x,y};
-                Atirar(&n, pos);
+                Atirar(&n, jogador.pos);
                 PlaySound(tiro); 
             }
             if(IsKeyPressed(KEY_ESCAPE)){
@@ -214,12 +217,12 @@ int main(){
             }
         }
 
-        Rectangle rectNaves_Jogador = { x, y, nave.width, nave.height };
+        Rectangle rectNaves_Jogador = { jogador.pos.x, jogador.pos.y, nave.width, nave.height };
         Rectangle rectNaves_de_Bonus = { posicao_inimigo.x, posicao_inimigo.y, Nave_de_bonus.width, Nave_de_bonus.height };
 
         if(currentScreen == GAMEPLAY){
             if(CheckCollisionRecs(rectNaves_de_Bonus,rectNaves_Jogador)){
-                status.vida-=1;
+                jogador.vida-=1;
                 posicao_inimigo.y = 0;
             }
         }
@@ -227,7 +230,7 @@ int main(){
         BeginDrawing();
         ClearBackground(WHITE);
         DrawTexture(espaco, 0, 0, WHITE);
-        DrawText(TextFormat("SCORE: %i", pontos), 0, 0, 40, MAROON);
+        DrawText(TextFormat("SCORE: %i", jogador.pontos), 0, 0, 40, MAROON);
 
         switch(currentScreen){
             case MENU:
@@ -237,18 +240,18 @@ int main(){
                 break;
 
             case GAMEPLAY:
-                switch (status.vida) {
+                switch (jogador.vida) {
                     case 4:
-                        DrawTexture(nave,x,y,WHITE);
+                        DrawTexture(nave,jogador.pos.x,jogador.pos.y,WHITE);
                         break;
                     case 3:
-                        DrawTexture(nave_levemente_danificada,x,y,WHITE);
+                        DrawTexture(nave_levemente_danificada,jogador.pos.x,jogador.pos.y,WHITE);
                         break;
                     case 2:
-                        DrawTexture(nave_danificada,x,y,WHITE);
+                        DrawTexture(nave_danificada,jogador.pos.x,jogador.pos.y,WHITE);
                         break;
                     case 1:
-                        DrawTexture(nave_ultima_vida,x,y,WHITE);
+                        DrawTexture(nave_ultima_vida,jogador.pos.x,jogador.pos.y,WHITE);
                         break;
                     default:
                         currentScreen = GAMEOVER;
@@ -261,7 +264,7 @@ int main(){
 
             case GAMEOVER:
                 DrawText("GAME OVER", largura/2 - 150, altura/2 - 40, 60, RED);
-                DrawText(TextFormat("SCORE: %i", pontos), largura/2 - 80, altura/2 + 30, 30, MAROON);
+                DrawText(TextFormat("SCORE: %i", jogador.pontos), largura/2 - 80, altura/2 + 30, 30, MAROON);
                 DrawText("Pressione ENTER para reiniciar ou ESC para voltar ao menu", largura/2 - 280, altura/2 + 80, 20, DARKGRAY);
                 break;
         }
@@ -280,7 +283,7 @@ int main(){
                 direct_inimigo=0;
             }
             Avancar_tiro(&n);
-            checar_tiro(&n, rectNaves_de_Bonus, &pontos,&posicao_inimigo.x);
+            checar_tiro(&n, rectNaves_de_Bonus, &jogador.pontos,&posicao_inimigo.x);
         }
     }
     StopMusicStream(musica);
