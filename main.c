@@ -39,8 +39,10 @@ int inimigo_capacity = 8;
 
 
 void Desenho_inimigo(Texture2D inimigo_texture, int y){
+    int x = 0;
     for(int i=0;i<inimigocount;i++){
-        DrawTexture(inimigo_texture,100,y, WHITE);
+        DrawTexture(inimigo_texture,x+20,y, WHITE);
+        x += 20;
     }
 }
 
@@ -323,7 +325,10 @@ int main(){
 
         EndDrawing();
 
-        y += 3;
+        y += 5;
+        if(altura<y){
+            y=0;
+        }
 
         if(currentScreen == GAMEPLAY){
             Desenho_inimigo(Nave_de_bonus, y);
