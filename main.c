@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #define MAX_TIRO 100
+#define MAX_ENEMY 5
 
 struct tiro
 {
@@ -30,6 +31,41 @@ struct tiro *CriarTiro(Vector2 pos){
     n->laser=pos;
     n->next=NULL;
     return n;
+}
+
+struct inimigo *inimigos = NULL;
+int inimigocount = 8;
+int inimigo_capacity = 8;
+
+
+void Desenho_inimigo(Texture2D inimigo_texture, int y){
+    for(int i=0;i<inimigocount;i++){
+        DrawTexture(inimigo_texture,100,y, WHITE);
+    }
+}
+
+struct inimigo* InimigoTryAdd(int pos_x, int pos_y){
+    if (inimigocount >= inimigo_capacity){
+        int newcap = (inimigo_capacity == 0) ? 4 : inimigo_capacity * 2; 
+        struct inimigo *tmp = realloc(inimigos, sizeof(struct inimigo) * newcap);
+        if (!tmp) return NULL;
+        inimigos = tmp;
+        inimigo_capacity = newcap;
+    }
+    struct inimigo *inimigo = &inimigos[inimigocount++];
+    inimigo->pos_x = pos_x;
+    inimigo->pos_y = pos_y;
+    inimigo->tiro_inimigo = NULL;
+    return inimigo;
+}
+
+void InimigoInit(){
+    inimigo_capacity= 8;
+    inimigos = malloc(sizeof(struct inimigo) * inimigo_capacity);
+    inimigocount = 0;
+    for (int i = 0; i < 5; i++){
+        InimigoTryAdd(100, 30);
+    }
 }
 
 void Atirar(struct tiro **lista,Vector2 pos){
@@ -124,6 +160,11 @@ void LimparTiros(struct tiro **lista){
     *lista = NULL;
 }
 
+void InitGame(){
+    InimigoInit();
+   // InimigoTryAdd(GetRandomValue(0, 100), 30);
+}
+
 int main(){
     InitWindow(100, 100,"temp");
     int monitor=GetCurrentMonitor();
@@ -134,8 +175,8 @@ int main(){
     InitWindow(largura,altura,"Space Invaders");
     SetTargetFPS(40);
     InitAudioDevice(); 
+    InitGame();
 
-    Texture2D array[20];
     struct Jogador jogador;
 
     jogador.pos.x=largura/2;
@@ -157,13 +198,18 @@ int main(){
 
     int direct_inimigo=1;
     struct tiro *n=NULL;
-    
+    float spawnTimer = 0.0f;
+    float spawnInterval = 1.5f;
+    int y = 0;
+    float temp = 0;
+
     PlayMusicStream(musica);
 
     GameScreen currentScreen = MENU; 
 
     while(!WindowShouldClose()){
         UpdateMusicStream(musica);
+        temp++;
 
         if(currentScreen == MENU){
             if(IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)){
@@ -209,6 +255,7 @@ int main(){
                 currentScreen = MENU;
                 LimparTiros(&n);
             }
+
 
             if (posicao_inimigo.y > altura){
                 posicao_inimigo.x = GetRandomValue(0, largura - Nave_de_bonus.width);
@@ -257,7 +304,12 @@ int main(){
                         currentScreen = GAMEOVER;
                         break;
                 }
-
+                spawnTimer += GetFrameTime();
+                if (spawnTimer >= spawnInterval){
+                    spawnTimer = 0.0f;
+                    InimigoTryAdd(GetRandomValue(0, largura - Nave_de_bonus.width), 30);
+                }
+                Desenho_inimigo(Nave_de_bonus, y);
                 DrawTexture(Nave_de_bonus,posicao_inimigo.x,posicao_inimigo.y,WHITE);
                 desenho_tiro(&n,  piu);
                 break;
@@ -271,7 +323,10 @@ int main(){
 
         EndDrawing();
 
+        y += 3;
+
         if(currentScreen == GAMEPLAY){
+            Desenho_inimigo(Nave_de_bonus, y);
             if(direct_inimigo){
                 posicao_inimigo.y += GetFrameTime() * 200;
             } else{
@@ -296,6 +351,7 @@ int main(){
     UnloadTexture(espaco);
     UnloadTexture(piu);
     CloseAudioDevice();
+    if (inimigos) free(inimigos);
     CloseWindow();
     return 0;
 }
