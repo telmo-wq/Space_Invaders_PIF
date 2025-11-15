@@ -12,8 +12,12 @@ int main(void)
 
     InitWindow(screenWidth, screenHeight, "raylib [text] example - writing anim");
 
-    const char message[128] = "This sample illustrates a text writing\nanimation effect! Check it out! ;)";
+    const char *file = "resources/text_file.txt";
+    char *message = LoadFileText(file);
 
+   // const char message[128] = "This sample illustrates a text writing\nanimation effect! Check it out! ;)";
+
+   int messageLength = strlen(message);
     int framesCounter = 0;
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
@@ -28,6 +32,10 @@ int main(void)
         else framesCounter++;
 
         if (IsKeyPressed(KEY_ENTER)) framesCounter = 0;
+
+        if (framesCounter/10 > messageLength){
+            break;
+        }
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -47,6 +55,7 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
+    UnloadFileText(message);
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 

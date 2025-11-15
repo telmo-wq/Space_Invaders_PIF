@@ -305,6 +305,7 @@ int main(){
     while(!WindowShouldClose()){
         UpdateMusicStream(musica);
 
+
         if(currentScreen == MENU){
             if(IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)){
                 pontos = 0;
