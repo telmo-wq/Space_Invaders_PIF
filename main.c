@@ -1,9 +1,12 @@
 #include <raylib.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <unistd.h>
 #define MAX_TIRO 100
-#define MAX_ENEMY 5
+
+struct nave_status
+{
+    int vida;
+};
 
 struct tiro
 {
@@ -11,19 +14,11 @@ struct tiro
     struct tiro *next;
 };
 
-struct Jogador
-{
-    Vector2 pos; //posição do jogador
-    int vida;
-    int tipo;
-    int pontos;
-
-};
-
 struct inimigo{
   int pos_x;
-  int pos_y;  
-  struct tiro *tiro_inimigo;
+  int pos_y;
+  struct tiro tiro_inimigo;
+  struct inimigo *next;
 };
 
 struct tiro *CriarTiro(Vector2 pos){
@@ -31,43 +26,6 @@ struct tiro *CriarTiro(Vector2 pos){
     n->laser=pos;
     n->next=NULL;
     return n;
-}
-
-struct inimigo *inimigos = NULL;
-int inimigocount = 8;
-int inimigo_capacity = 8;
-
-
-void Desenho_inimigo(Texture2D inimigo_texture, int y){
-    int x = 0;
-    for(int i=0;i<inimigocount;i++){
-        DrawTexture(inimigo_texture,x+20,y, WHITE);
-        x += 20;
-    }
-}
-
-struct inimigo* InimigoTryAdd(int pos_x, int pos_y){
-    if (inimigocount >= inimigo_capacity){
-        int newcap = (inimigo_capacity == 0) ? 4 : inimigo_capacity * 2; 
-        struct inimigo *tmp = realloc(inimigos, sizeof(struct inimigo) * newcap);
-        if (!tmp) return NULL;
-        inimigos = tmp;
-        inimigo_capacity = newcap;
-    }
-    struct inimigo *inimigo = &inimigos[inimigocount++];
-    inimigo->pos_x = pos_x;
-    inimigo->pos_y = pos_y;
-    inimigo->tiro_inimigo = NULL;
-    return inimigo;
-}
-
-void InimigoInit(){
-    inimigo_capacity= 8;
-    inimigos = malloc(sizeof(struct inimigo) * inimigo_capacity);
-    inimigocount = 0;
-    for (int i = 0; i < 5; i++){
-        InimigoTryAdd(100, 30);
-    }
 }
 
 void Atirar(struct tiro **lista,Vector2 pos){
@@ -149,7 +107,8 @@ void desenho_tiro(struct tiro **lista,Texture2D piu){
 typedef enum {
     MENU = 0,
     GAMEPLAY = 1,
-    GAMEOVER = 2
+    GAMEOVER = 2,
+    GAMEWIN=3
 } GameScreen;
 
 void LimparTiros(struct tiro **lista){
@@ -162,9 +121,143 @@ void LimparTiros(struct tiro **lista){
     *lista = NULL;
 }
 
-void InitGame(){
-    InimigoInit();
-   // InimigoTryAdd(GetRandomValue(0, 100), 30);
+struct inimigo *CriarInimigo(int pos_x, int pos_y){
+    struct inimigo *novo = (struct inimigo*)malloc(sizeof(struct inimigo));
+    novo->pos_x = pos_x;
+    novo->pos_y = pos_y;
+    novo->next = NULL;
+    return novo;
+}
+
+void AdicionarInimigo(struct inimigo **lista, int pos_x, int pos_y){
+    struct inimigo *aux = *lista;
+    struct inimigo *novo = CriarInimigo(pos_x, pos_y);
+    if(aux == NULL){
+        *lista = novo;
+    } else {
+        while(aux->next != NULL){
+            aux = aux->next;
+        }
+        aux->next = novo;
+    }
+}
+
+void LimparInimigos(struct inimigo **lista){
+    struct inimigo *aux = *lista;
+    while(aux != NULL){
+        struct inimigo *temp = aux;
+        aux = aux->next;
+        free(temp);
+    }
+    *lista = NULL;
+}
+
+void AvancarInimigos(struct inimigo **lista, int direct, int largura){
+    struct inimigo *aux = *lista;
+    while(aux != NULL){
+        if(direct){
+            aux->pos_x += GetFrameTime() * 150;
+        } else {
+            aux->pos_x -= GetFrameTime() * 150;
+        }
+        aux = aux->next;
+    }
+}
+
+void DesenhoInimigos(struct inimigo **lista, Texture2D nave_inimigo){
+    struct inimigo *aux = *lista;
+    while(aux != NULL){
+        DrawTexture(nave_inimigo, aux->pos_x, aux->pos_y, WHITE);
+        aux = aux->next;
+    }
+}
+
+void ChecarColisaoComInimigos(struct tiro **tiros, struct inimigo **inimigos, 
+                               int *pontos, Texture2D nave_inimigo){
+    struct tiro *aux_tiro = *tiros;
+    struct tiro *ant_tiro = NULL;
+    
+    while(aux_tiro != NULL){
+        struct inimigo *aux_ini = *inimigos;
+        struct inimigo *ant_ini = NULL;
+        int acertou = 0;
+        
+        while(aux_ini != NULL){
+            Rectangle rectTiro = {aux_tiro->laser.x, aux_tiro->laser.y, 5, 15};
+            Rectangle rectInimigo = {aux_ini->pos_x, aux_ini->pos_y, 
+                                     nave_inimigo.width, nave_inimigo.height};
+            
+            if(CheckCollisionRecs(rectInimigo, rectTiro)){
+                struct inimigo *temp_ini = aux_ini;
+                if(ant_ini == NULL){
+                    *inimigos = (*inimigos)->next;
+                    aux_ini = *inimigos;
+                } else {
+                    ant_ini->next = aux_ini->next;
+                    aux_ini = aux_ini->next;
+                }
+                free(temp_ini);
+                *pontos += 100;
+                acertou = 1;
+                break;
+            } else {
+                ant_ini = aux_ini;
+                aux_ini = aux_ini->next;
+            }
+        }
+        
+        if(acertou){
+            struct tiro *temp_tiro = aux_tiro;
+            if(ant_tiro == NULL){
+                *tiros = (*tiros)->next;
+                aux_tiro = *tiros;
+            } else {
+                ant_tiro->next = aux_tiro->next;
+                aux_tiro = aux_tiro->next;
+            }
+            free(temp_tiro);
+        } else if(aux_tiro->laser.y < 0){
+            struct tiro *temp_tiro = aux_tiro;
+            if(ant_tiro == NULL){
+                *tiros = (*tiros)->next;
+                aux_tiro = *tiros;
+            } else {
+                ant_tiro->next = aux_tiro->next;
+                aux_tiro = aux_tiro->next;
+            }
+            free(temp_tiro);
+        } else {
+            ant_tiro = aux_tiro;
+            aux_tiro = aux_tiro->next;
+        }
+    }
+}
+
+void ChecarColisaoComPlayer(struct inimigo **inimigos, Rectangle rectJogador, 
+                             struct nave_status *status, Texture2D nave_inimigo){
+    struct inimigo *aux = *inimigos;
+    struct inimigo *ant = NULL;
+    
+    while(aux != NULL){
+        Rectangle rectInimigo = {aux->pos_x, aux->pos_y, 
+                                 nave_inimigo.width, nave_inimigo.height};
+        
+        if(CheckCollisionRecs(rectInimigo, rectJogador)){
+            status->vida -= 1;
+            struct inimigo *temp = aux;
+            if(ant == NULL){
+                *inimigos = (*inimigos)->next;
+                aux = *inimigos;
+            } else {
+                ant->next = aux->next;
+                aux = aux->next;
+            }
+            free(temp);
+        } else {
+            ant = aux;
+            aux = aux->next;
+        }
+    }
 }
 
 int main(){
@@ -177,14 +270,12 @@ int main(){
     InitWindow(largura,altura,"Space Invaders");
     SetTargetFPS(40);
     InitAudioDevice(); 
-    InitGame();
 
-    struct Jogador jogador;
-
-    jogador.pos.x=largura/2;
-    jogador.pos.y=altura-50;
-    jogador.pontos=0;
-    jogador.vida=4;
+    int x=largura/2;
+    int y=altura-50;
+    int pontos=0;
+    struct nave_status status;
+    status.vida=4;
     
     Music musica = LoadMusicStream("audios/musica.wav");
     Sound tiro= LoadSound("audios/tiro.wav");
@@ -195,91 +286,101 @@ int main(){
     Texture2D piu=LoadTexture("sprites/Zapper.png");
     Texture2D espaco=LoadTexture("sprites/final.png");
     Texture2D Nave_de_bonus=LoadTexture("sprites/Nave_de_bonus.png");
+    Texture2D nave_inimigo=LoadTexture("sprites/Nave_de_bonus.png"); 
 
-    Vector2 posicao_inimigo={GetRandomValue(0, 100),30};
+    struct inimigo *inimigos = NULL;
+    int direct_inimigo = 1;
+    float tempo_spawn = 0;
+    float intervalo_spawn = 2.0f;
+    int onda_atual = 1;
+    int inimigos_na_onda = 3;
+    int inimigos_derrotados = 0;
 
-    int direct_inimigo=1;
     struct tiro *n=NULL;
-    float spawnTimer = 0.0f;
-    float spawnInterval = 1.5f;
-    int y = 0;
-    float temp = 0;
-
+    
     PlayMusicStream(musica);
 
     GameScreen currentScreen = MENU; 
 
     while(!WindowShouldClose()){
         UpdateMusicStream(musica);
-        temp++;
 
         if(currentScreen == MENU){
             if(IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)){
-                jogador.pontos = 0;
-                jogador.vida = 4;
-                jogador.pos.x = largura/2;
-                jogador.pos.y = altura-50;
-                direct_inimigo=1;
-                posicao_inimigo.x = GetRandomValue(0, 100); posicao_inimigo.y = 30;
+                pontos = 0;
+                status.vida = 4;
+                x = largura/2;
+                y = altura-50;
                 LimparTiros(&n);
+                LimparInimigos(&inimigos);
                 currentScreen = GAMEPLAY;
             }
         } else if(currentScreen == GAMEOVER){
             if(IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)){
-                jogador.pontos = 0;
-                jogador.vida = 4;
-                jogador.pos.x = largura/2;
-                jogador.pos.y = altura-50;
-                posicao_inimigo.x = GetRandomValue(0, 100); posicao_inimigo.y = 30;
+                pontos = 0;
+                status.vida = 4;
+                x = largura/2;
+                y = altura-50;
                 LimparTiros(&n);
+                LimparInimigos(&inimigos);
                 currentScreen = GAMEPLAY;
             } else if(IsKeyPressed(KEY_ESCAPE)){
                 currentScreen = MENU;
             }
         } else if(currentScreen == GAMEPLAY){
-            if(IsKeyDown(KEY_S) && jogador.pos.y+3<=altura-50){
-                jogador.pos.y+=3;
+            if(IsKeyDown(KEY_S) && y+3<=altura-50){
+                y+=3;
             }
-            if(IsKeyDown(KEY_D) && jogador.pos.x+3<=largura-50){
-                jogador.pos.x+=3;
+            if(IsKeyDown(KEY_D) && x+3<=largura-50){
+                x+=3;
             }
-            if(IsKeyDown(KEY_A) && jogador.pos.x-3>=0){
-                jogador.pos.x-=3;
+            if(IsKeyDown(KEY_A) && x-3>=0){
+                x-=3;
             }
-            if(IsKeyDown(KEY_W) && jogador.pos.y-3>=0){
-                jogador.pos.y-=3;
+            if(IsKeyDown(KEY_W) && y-3>=0){
+                y-=3;
             }
             if(IsKeyPressed(KEY_E)){
-                Atirar(&n, jogador.pos);
+                Vector2 pos={x,y};
+                Atirar(&n, pos);
                 PlaySound(tiro); 
             }
             if(IsKeyPressed(KEY_ESCAPE)){
                 currentScreen = MENU;
                 LimparTiros(&n);
+                LimparInimigos(&inimigos);
             }
 
+            tempo_spawn += GetFrameTime();
+            if(tempo_spawn >= intervalo_spawn && inimigos_derrotados < inimigos_na_onda){
+                int pos_x = 50 + rand() % (largura - 100);
+                AdicionarInimigo(&inimigos, pos_x, 30);
+                inimigos_derrotados++;
+                tempo_spawn = 0;
+            }
 
-            if (posicao_inimigo.y > altura){
-                posicao_inimigo.x = GetRandomValue(0, largura - Nave_de_bonus.width);
-                posicao_inimigo.y = 30;
-                direct_inimigo = 1;
+            if(inimigos_derrotados >= inimigos_na_onda && inimigos == NULL){
+                onda_atual++;
+                inimigos_na_onda = 6 + onda_atual;
+                inimigos_derrotados = 0;
+                tempo_spawn = 0;
+            }
+
+            if (onda_atual>10){
+                currentScreen=GAMEWIN;
             }
         }
 
-        Rectangle rectNaves_Jogador = { jogador.pos.x, jogador.pos.y, nave.width, nave.height };
-        Rectangle rectNaves_de_Bonus = { posicao_inimigo.x, posicao_inimigo.y, Nave_de_bonus.width, Nave_de_bonus.height };
+        Rectangle rectNaves_Jogador = { x, y, nave.width, nave.height };
 
         if(currentScreen == GAMEPLAY){
-            if(CheckCollisionRecs(rectNaves_de_Bonus,rectNaves_Jogador)){
-                jogador.vida-=1;
-                posicao_inimigo.y = 0;
-            }
+            ChecarColisaoComPlayer(&inimigos, rectNaves_Jogador, &status, nave_inimigo);
         }
 
         BeginDrawing();
         ClearBackground(WHITE);
         DrawTexture(espaco, 0, 0, WHITE);
-        DrawText(TextFormat("SCORE: %i", jogador.pontos), 0, 0, 40, MAROON);
+        DrawText(TextFormat("SCORE: %i | ONDA: %i", pontos, onda_atual), 0, 0, 40, MAROON);
 
         switch(currentScreen){
             case MENU:
@@ -289,63 +390,64 @@ int main(){
                 break;
 
             case GAMEPLAY:
-                switch (jogador.vida) {
+                switch (status.vida) {
                     case 4:
-                        DrawTexture(nave,jogador.pos.x,jogador.pos.y,WHITE);
+                        DrawTexture(nave,x,y,WHITE);
                         break;
                     case 3:
-                        DrawTexture(nave_levemente_danificada,jogador.pos.x,jogador.pos.y,WHITE);
+                        DrawTexture(nave_levemente_danificada,x,y,WHITE);
                         break;
                     case 2:
-                        DrawTexture(nave_danificada,jogador.pos.x,jogador.pos.y,WHITE);
+                        DrawTexture(nave_danificada,x,y,WHITE);
                         break;
                     case 1:
-                        DrawTexture(nave_ultima_vida,jogador.pos.x,jogador.pos.y,WHITE);
+                        DrawTexture(nave_ultima_vida,x,y,WHITE);
                         break;
                     default:
                         currentScreen = GAMEOVER;
                         break;
                 }
-                spawnTimer += GetFrameTime();
-                if (spawnTimer >= spawnInterval){
-                    spawnTimer = 0.0f;
-                    InimigoTryAdd(GetRandomValue(0, largura - Nave_de_bonus.width), 30);
-                }
-                Desenho_inimigo(Nave_de_bonus, y);
-                DrawTexture(Nave_de_bonus,posicao_inimigo.x,posicao_inimigo.y,WHITE);
-                desenho_tiro(&n,  piu);
+
+                DesenhoInimigos(&inimigos, nave_inimigo);
+                desenho_tiro(&n, piu);
                 break;
 
             case GAMEOVER:
                 DrawText("GAME OVER", largura/2 - 150, altura/2 - 40, 60, RED);
-                DrawText(TextFormat("SCORE: %i", jogador.pontos), largura/2 - 80, altura/2 + 30, 30, MAROON);
+                DrawText(TextFormat("SCORE: %i | ONDA: %i", pontos, onda_atual), largura/2 - 120, altura/2 + 30, 30, MAROON);
                 DrawText("Pressione ENTER para reiniciar ou ESC para voltar ao menu", largura/2 - 280, altura/2 + 80, 20, DARKGRAY);
                 break;
+            case GAMEWIN:
+                DrawText("GANHOU MISERAVI", largura/2 - 150, altura/2 - 40, 60, GREEN);
+                DrawText(TextFormat("SCORE: %i", pontos), largura/2 - 120, altura/2 + 30, 30, MAROON);
+                DrawText("Pressione ENTER para reiniciar ou ESC para voltar ao menu", largura/2 - 280, altura/2 + 80, 20, DARKGRAY);
         }
 
         EndDrawing();
 
-        y += 5;
-        if(altura<y){
-            y=0;
-        }
-
         if(currentScreen == GAMEPLAY){
-            Desenho_inimigo(Nave_de_bonus, y);
             if(direct_inimigo){
-                posicao_inimigo.y += GetFrameTime() * 200;
-            } else{
-                posicao_inimigo.y -= GetFrameTime() * 200;
+                AvancarInimigos(&inimigos, 1, largura);
+            } else {
+                AvancarInimigos(&inimigos, 0, largura);
             }
-            if (posicao_inimigo.x < 0){
-                direct_inimigo=1;
-            } else if(posicao_inimigo.x>largura-100){
-                direct_inimigo=0;
+
+            struct inimigo *aux = inimigos;
+            int min_x = largura, max_x = 0;
+            while(aux != NULL){
+                if(aux->pos_x < min_x) min_x = aux->pos_x;
+                if(aux->pos_x > max_x) max_x = aux->pos_x;
+                aux = aux->next;
             }
+            if(min_x < 0) direct_inimigo = 1;
+            else if(max_x > largura - 100) direct_inimigo = 0;
+
             Avancar_tiro(&n);
-            checar_tiro(&n, rectNaves_de_Bonus, &jogador.pontos,&posicao_inimigo.x);
+            ChecarColisaoComInimigos(&n, &inimigos, &pontos, nave_inimigo);
         }
     }
+
+    LimparInimigos(&inimigos);
     StopMusicStream(musica);
     UnloadMusicStream(musica);
     UnloadSound(tiro);
@@ -356,7 +458,6 @@ int main(){
     UnloadTexture(espaco);
     UnloadTexture(piu);
     CloseAudioDevice();
-    if (inimigos) free(inimigos);
     CloseWindow();
     return 0;
 }
