@@ -1,37 +1,33 @@
-/*#include <raylib.h>
 
-
-
+#include <raylib.h>
 
 int main(void)
 {
-    // Initialization
-    //--------------------------------------------------------------------------------------
+    
     const int screenWidth = 800;
     const int screenHeight = 450;
 
     InitWindow(screenWidth, screenHeight, "raylib [text] example - writing anim");
 
-    const char message[128] = "This sample illustrates a text writing\nanimation effect! Check it out! ;)";
+    const char *fileName = "titulo.txt";
+    char *message = LoadFileText(fileName);
 
+    int messageLength = (int)strlen(message);
     int framesCounter = 0;
 
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
+    SetTargetFPS(60);               
 
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+   
+    while (!WindowShouldClose())    
     {
-        // Update
-        //----------------------------------------------------------------------------------
+        
         if (IsKeyDown(KEY_SPACE)) framesCounter += 8;
         else framesCounter++;
 
         if (IsKeyPressed(KEY_ENTER)) framesCounter = 0;
-        //----------------------------------------------------------------------------------
+        
 
-        // Draw
-        //----------------------------------------------------------------------------------
+        
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
@@ -42,15 +38,14 @@ int main(void)
             DrawText("HOLD [SPACE] to SPEED UP!", 239, 300, 20, LIGHTGRAY);
 
         EndDrawing();
-        //----------------------------------------------------------------------------------
+
+        if (framesCounter/10 > messageLength) break;
+        
     }
 
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
+    free(message);
+    CloseWindow();        
 
     return 0;
 }
-    */
-   
+
