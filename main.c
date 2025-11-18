@@ -1,108 +1,10 @@
 #include <raylib.h>
 #include <stdbool.h>
+#include "inimigo.h"
+#include "tiro.h"
 #include <stdlib.h>
 #define MAX_TIRO 100
 
-struct nave_status
-{
-    int vida;
-};
-
-struct tiro
-{
-    Vector2 laser;
-    struct tiro *next;
-};
-
-struct inimigo{
-  int pos_x;
-  int pos_y;
-  struct tiro tiro_inimigo;
-  struct inimigo *next;
-};
-
-struct tiro *CriarTiro(Vector2 pos){
-    struct tiro *n=(struct tiro*)malloc(sizeof(struct tiro));
-    n->laser=pos;
-    n->next=NULL;
-    return n;
-}
-
-void Atirar(struct tiro **lista,Vector2 pos){
-    struct tiro *aux=*lista;
-    struct tiro *novo=CriarTiro(pos);
-    if(aux==NULL){
-        *lista=novo;
-    } else{
-        while(aux->next!=NULL){
-            aux=aux->next;
-        }
-        aux->next=novo;
-    }
-}
-void Avancar_tiro(struct tiro **lista){
-    struct tiro *aux=*lista;
-    if(aux!=NULL){
-        while (aux!=NULL)
-        {
-            aux->laser.y-=10;
-            aux=aux->next;
-        }
-
-    }
-}
-
-void checar_tiro(struct tiro **lista,Rectangle rectNaves_de_Bonus,int *ponto,float *pos){
-    struct tiro *aux=*lista;
-    struct tiro *ant=NULL;
-    if(aux!=NULL){
-        while (aux!=NULL)
-        {
-            Rectangle rectTiro = {aux->laser.x,aux->laser.y, 5, 15};
-            if(CheckCollisionRecs(rectNaves_de_Bonus,rectTiro)){
-                struct tiro *temp = aux;
-                if(ant == NULL){
-                    (*lista) = (*lista)->next;
-                    aux = (*lista);
-                    *ponto += 100;
-                    *pos=10;
-                } else {
-                    ant->next = aux->next;
-                    aux = aux->next;
-                    *ponto += 100;
-                    *pos=10;
-                }
-                free(temp);
-            } else if(aux->laser.y<0){
-                struct tiro *temp = aux;
-                if(ant == NULL){
-                    (*lista)=(*lista)->next;
-                    aux = (*lista);
-
-                }else{
-                    ant->next = aux->next;
-                    aux = aux->next;
-                }
-                free(temp);
-
-            }else{
-                ant=aux;
-                aux=aux->next;
-
-            }
-        }
-
-    }
-}
-
-void desenho_tiro(struct tiro **lista,Texture2D piu){
-    struct tiro *aux=*lista;
-    while(aux!=NULL){
-            DrawTexture(piu,aux->laser.x,aux->laser.y,WHITE);
-            aux=aux->next;
-        }
-
-}
 
 typedef enum {
     MENU = 0,
@@ -111,154 +13,6 @@ typedef enum {
     GAMEWIN=3
 } GameScreen;
 
-void LimparTiros(struct tiro **lista){
-    struct tiro *aux = *lista;
-    while(aux != NULL){
-        struct tiro *temp = aux;
-        aux = aux->next;
-        free(temp);
-    }
-    *lista = NULL;
-}
-
-struct inimigo *CriarInimigo(int pos_x, int pos_y){
-    struct inimigo *novo = (struct inimigo*)malloc(sizeof(struct inimigo));
-    novo->pos_x = pos_x;
-    novo->pos_y = pos_y;
-    novo->next = NULL;
-    return novo;
-}
-
-void AdicionarInimigo(struct inimigo **lista, int pos_x, int pos_y){
-    struct inimigo *aux = *lista;
-    struct inimigo *novo = CriarInimigo(pos_x, pos_y);
-    if(aux == NULL){
-        *lista = novo;
-    } else {
-        while(aux->next != NULL){
-            aux = aux->next;
-        }
-        aux->next = novo;
-    }
-}
-
-void LimparInimigos(struct inimigo **lista){
-    struct inimigo *aux = *lista;
-    while(aux != NULL){
-        struct inimigo *temp = aux;
-        aux = aux->next;
-        free(temp);
-    }
-    *lista = NULL;
-}
-
-void AvancarInimigos(struct inimigo **lista, int direct, int largura){
-    struct inimigo *aux = *lista;
-    while(aux != NULL){
-        if(direct){
-            aux->pos_x += GetFrameTime() * 150;
-        } else {
-            aux->pos_x -= GetFrameTime() * 150;
-        }
-        aux = aux->next;
-    }
-}
-
-void DesenhoInimigos(struct inimigo **lista, Texture2D nave_inimigo){
-    struct inimigo *aux = *lista;
-    while(aux != NULL){
-        DrawTexture(nave_inimigo, aux->pos_x, aux->pos_y, WHITE);
-        aux = aux->next;
-    }
-}
-
-void ChecarColisaoComInimigos(struct tiro **tiros, struct inimigo **inimigos, 
-                               int *pontos, Texture2D nave_inimigo){
-    struct tiro *aux_tiro = *tiros;
-    struct tiro *ant_tiro = NULL;
-    
-    while(aux_tiro != NULL){
-        struct inimigo *aux_ini = *inimigos;
-        struct inimigo *ant_ini = NULL;
-        int acertou = 0;
-        
-        while(aux_ini != NULL){
-            Rectangle rectTiro = {aux_tiro->laser.x, aux_tiro->laser.y, 5, 15};
-            Rectangle rectInimigo = {aux_ini->pos_x, aux_ini->pos_y, 
-                                     nave_inimigo.width, nave_inimigo.height};
-            
-            if(CheckCollisionRecs(rectInimigo, rectTiro)){
-                struct inimigo *temp_ini = aux_ini;
-                if(ant_ini == NULL){
-                    *inimigos = (*inimigos)->next;
-                    aux_ini = *inimigos;
-                } else {
-                    ant_ini->next = aux_ini->next;
-                    aux_ini = aux_ini->next;
-                }
-                free(temp_ini);
-                *pontos += 100;
-                acertou = 1;
-                break;
-            } else {
-                ant_ini = aux_ini;
-                aux_ini = aux_ini->next;
-            }
-        }
-        
-        if(acertou){
-            struct tiro *temp_tiro = aux_tiro;
-            if(ant_tiro == NULL){
-                *tiros = (*tiros)->next;
-                aux_tiro = *tiros;
-            } else {
-                ant_tiro->next = aux_tiro->next;
-                aux_tiro = aux_tiro->next;
-            }
-            free(temp_tiro);
-        } else if(aux_tiro->laser.y < 0){
-            struct tiro *temp_tiro = aux_tiro;
-            if(ant_tiro == NULL){
-                *tiros = (*tiros)->next;
-                aux_tiro = *tiros;
-            } else {
-                ant_tiro->next = aux_tiro->next;
-                aux_tiro = aux_tiro->next;
-            }
-            free(temp_tiro);
-        } else {
-            ant_tiro = aux_tiro;
-            aux_tiro = aux_tiro->next;
-        }
-    }
-}
-
-void ChecarColisaoComPlayer(struct inimigo **inimigos, Rectangle rectJogador, 
-                             struct nave_status *status, Texture2D nave_inimigo){
-    struct inimigo *aux = *inimigos;
-    struct inimigo *ant = NULL;
-    
-    while(aux != NULL){
-        Rectangle rectInimigo = {aux->pos_x, aux->pos_y, 
-                                 nave_inimigo.width, nave_inimigo.height};
-        
-        if(CheckCollisionRecs(rectInimigo, rectJogador)){
-            status->vida -= 1;
-            struct inimigo *temp = aux;
-            if(ant == NULL){
-                *inimigos = (*inimigos)->next;
-                aux = *inimigos;
-            } else {
-                ant->next = aux->next;
-                aux = aux->next;
-            }
-            free(temp);
-        } else {
-            ant = aux;
-            aux = aux->next;
-        }
-    }
-}
 
 int main(){
     InitWindow(100, 100,"temp");
@@ -295,6 +49,9 @@ int main(){
     int onda_atual = 1;
     int inimigos_na_onda = 3;
     int inimigos_derrotados = 0;
+    int ranking[11][5];
+    int cont_caracter=0;
+    char nome_usuario[4];
 
     struct tiro *n=NULL;
     
@@ -307,7 +64,27 @@ int main(){
 
 
         if(currentScreen == MENU){
-            if(IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)){
+            int caractere=GetCharPressed();
+            while (caractere>0)
+            {
+                if(caractere>=97 && caractere<=122){
+                    caractere-=32;
+                }
+                if(caractere>=65 && caractere<=90 && cont_caracter<3){
+                    ranking[10][cont_caracter]=caractere;
+                    nome_usuario[cont_caracter]=(char)caractere;
+                    cont_caracter++;
+                    nome_usuario[cont_caracter]='\0';
+                }
+                caractere = GetCharPressed();
+            }
+            
+            if(IsKeyPressed(KEY_BACKSPACE) && cont_caracter >0){
+                    cont_caracter--;
+                    nome_usuario[cont_caracter]='\0';
+            }
+
+            if ((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) && cont_caracter==3) {
                 pontos = 0;
                 status.vida = 4;
                 x = largura/2;
@@ -316,6 +93,7 @@ int main(){
                 LimparInimigos(&inimigos);
                 currentScreen = GAMEPLAY;
             }
+
         } else if(currentScreen == GAMEOVER){
             if(IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)){
                 pontos = 0;
@@ -385,9 +163,11 @@ int main(){
 
         switch(currentScreen){
             case MENU:
-                DrawText("SPACE INVADERS", largura/2 - 200, altura/2 - 60, 50, BLACK);
-                DrawText("Pressione ENTER ou SPACE para iniciar", largura/2 - 220, altura/2, 20, DARKGRAY);
-                DrawText("Use WASD para mover, E para atirar, ESC para voltar", largura/2 - 300, altura/2 + 30, 18, DARKGRAY);
+                DrawText("SPACE INVADERS", largura/2 - 200, (altura/2) - 300, 50, BLACK);
+                DrawRectangleLines((largura/2)-100, (altura/2) -50 ,70 , 30, BLACK);
+                DrawText(nome_usuario, (largura/2)-95 , (altura/2) -50 , 30, BLACK);
+                DrawText("Pressione ENTER ou SPACE para iniciar", largura/2 - 220, altura/2+ 30, 20, DARKGRAY);
+                DrawText("Use WASD para mover, E para atirar, ESC para voltar", largura/2 - 300, altura/2 + 60, 18, DARKGRAY);
                 break;
 
             case GAMEPLAY:
