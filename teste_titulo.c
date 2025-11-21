@@ -1,6 +1,6 @@
-
 #include <raylib.h>
 #include <stdlib.h>
+#include <string.h>
 
 void titulo(void)
 {
@@ -35,8 +35,7 @@ void titulo(void)
 
             DrawText(TextSubtext(message, 0, framesCounter/10), 210, 160, 20, MAROON);
 
-            DrawText("PRESS [ENTER] to RESTART!", 240, 260, 20, LIGHTGRAY);
-            DrawText("HOLD [SPACE] to SPEED UP!", 239, 300, 20, LIGHTGRAY);
+
 
         EndDrawing();
 
@@ -46,7 +45,5 @@ void titulo(void)
 
     free(message);
     CloseWindow();        
-
-    return 0;
 }
 
