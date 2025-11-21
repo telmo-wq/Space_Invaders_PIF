@@ -1,7 +1,8 @@
 
 #include <raylib.h>
+#include <stdlib.h>
 
-int main(void)
+void titulo(void)
 {
     
     const int screenWidth = 800;

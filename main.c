@@ -3,7 +3,9 @@
 #include "inimigo.h"
 #include "tiro.h"
 #include <stdlib.h>
+#include "teste_titulo.h"
 #define MAX_TIRO 100
+
 
 
 typedef enum {
@@ -20,6 +22,8 @@ int main(){
     int largura=GetMonitorWidth(monitor)/1.5;
     int altura=GetMonitorHeight(monitor)/1.5;
     CloseWindow();
+
+    titulo();
 
     InitWindow(largura,altura,"Space Invaders");
     SetTargetFPS(40);
