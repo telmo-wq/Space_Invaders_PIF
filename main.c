@@ -53,10 +53,11 @@ int main(){
     int onda_atual = 1;
     int inimigos_na_onda = 3;
     int inimigos_derrotados = 0;
-    int ranking[11][5];
+    int ranking[11][5]={0};
     int cont_caracter=0;
     char nome_usuario[4];
 
+    recuperar_rank(ranking);
     struct tiro *n=NULL;
     
     PlayMusicStream(musica);
@@ -75,7 +76,6 @@ int main(){
                     caractere-=32;
                 }
                 if(caractere>=65 && caractere<=90 && cont_caracter<3){
-                    ranking[10][cont_caracter]=caractere;
                     nome_usuario[cont_caracter]=(char)caractere;
                     cont_caracter++;
                     nome_usuario[cont_caracter]='\0';
@@ -99,6 +99,13 @@ int main(){
             }
 
         } else if(currentScreen == GAMEOVER){
+                int lista[5];
+                lista[0] = nome_usuario[0];
+                lista[1] = nome_usuario[1];
+                lista[2] = nome_usuario[2];
+                lista[4]=pontos;
+                lista[3]=onda_atual;
+                rankear(ranking,lista);
             if(IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)){
                 pontos = 0;
                 status.vida = 4;
@@ -150,6 +157,13 @@ int main(){
             }
 
             if (onda_atual>10){
+                int lista[5];
+                lista[0] = nome_usuario[0];
+                lista[1] = nome_usuario[1];
+                lista[2] = nome_usuario[2];
+                lista[4]=pontos;
+                lista[3]=onda_atual;
+                rankear(ranking,lista);
                 currentScreen=GAMEWIN;
             }
         }
@@ -198,11 +212,14 @@ int main(){
                 break;
 
             case GAMEOVER:
+
                 DrawText("GAME OVER", largura/2 - 150, altura/2 - 40, 60, RED);
                 DrawText(TextFormat("SCORE: %i | ONDA: %i", pontos, onda_atual), largura/2 - 120, altura/2 + 30, 30, MAROON);
                 DrawText("Pressione ENTER para reiniciar ou ESC para voltar ao menu", largura/2 - 280, altura/2 + 80, 20, DARKGRAY);
+
                 break;
             case GAMEWIN:
+
                 DrawText("GANHOU MISERAVI", largura/2 - 150, altura/2 - 40, 60, GREEN);
                 DrawText(TextFormat("SCORE: %i", pontos), largura/2 - 120, altura/2 + 30, 30, MAROON);
                 DrawText("Pressione ENTER para reiniciar ou ESC para voltar ao menu", largura/2 - 280, altura/2 + 80, 20, DARKGRAY);
@@ -231,12 +248,14 @@ int main(){
             ChecarColisaoComInimigos(&n, &inimigos, &pontos, nave_inimigo);
         }
     }
-
+    salvar_rank(ranking);
     LimparInimigos(&inimigos);
     StopMusicStream(musica);
     UnloadMusicStream(musica);
     UnloadSound(tiro);
     UnloadTexture(nave);
+    UnloadTexture(Nave_de_bonus);
+    UnloadTexture(nave_inimigo);
     UnloadTexture(nave_danificada);
     UnloadTexture(nave_levemente_danificada);
     UnloadTexture(nave_ultima_vida);

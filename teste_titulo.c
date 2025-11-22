@@ -44,6 +44,7 @@ void titulo(void)
     }
 
     free(message);
-    CloseWindow();        
+    CloseWindow(); 
+    return;
 }
 
