@@ -8,6 +8,22 @@ struct nave_status
     int vida;
 };
 
+int validador_nome(char *nome, int (*mat)[5]){
+    for(int i=0;i<10;i++){
+        int cont=0;
+        for(int j=0;j<3;j++){
+            if(mat[i][j]!=(int)nome[j]){
+                break;
+            }
+            cont++;
+        }
+        if(cont==3){
+            return 0;
+        }
+    }
+    return 1;
+
+}
 
 void rankear(int (*mat)[5], int *nova) {
     

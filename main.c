@@ -59,6 +59,7 @@ int main(){
     int cont_caracter=0;
     char nome_usuario[4];
     int chave=1;
+    int nome_valido;
 
     recuperar_rank(ranking);
     struct tiro *n=NULL;
@@ -90,8 +91,11 @@ int main(){
                     cont_caracter--;
                     nome_usuario[cont_caracter]='\0';
             }
+            if(cont_caracter==3){
+                nome_valido=validador_nome(nome_usuario,ranking);
+                }
 
-            if ((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) && cont_caracter==3) {
+            if ((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) && nome_valido==1) {
                 pontos = 0;
                 chave=1;
                 status.vida = 4;
@@ -100,6 +104,8 @@ int main(){
                 LimparTiros(&n);
                 LimparInimigos(&inimigos);
                 currentScreen = GAMEPLAY;
+            } else if(nome_valido==0){
+                DrawText("Nome Invalido", 210, 160, 20, MAROON);
             }
 
         } else if(currentScreen == GAMEOVER){
@@ -191,6 +197,9 @@ int main(){
 
         switch(currentScreen){
             case MENU:
+            if(nome_valido==0){
+                DrawText("Nome Invalido", largura/2 - 250, (altura/2)-50, 20, MAROON);
+            }
                 DrawText("SPACE INVADERS", largura/2 - 200, (altura/2) - 300, 50, BLACK);
                 DrawRectangleLines((largura/2)-100, (altura/2) -50 ,70 , 30, BLACK);
                 DrawText(nome_usuario, (largura/2)-95 , (altura/2) -50 , 30, BLACK);
