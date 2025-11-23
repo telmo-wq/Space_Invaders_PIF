@@ -39,7 +39,7 @@ void titulo(void)
 
         EndDrawing();
 
-        if (framesCounter/10 > messageLength) break;
+        if (framesCounter/10 > messageLength+2) break;
         
     }
 

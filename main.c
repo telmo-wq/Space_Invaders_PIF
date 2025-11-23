@@ -220,7 +220,7 @@ int main(){
                 break;
             case GAMEWIN:
 
-                DrawText("GANHOU MISERAVI", largura/2 - 150, altura/2 - 40, 60, GREEN);
+                DrawText("TODOS INIMIGOS DERROTADOS! PARABÉNS!", largura/2 - 150, altura/2 - 40, 60, GREEN);
                 DrawText(TextFormat("SCORE: %i", pontos), largura/2 - 120, altura/2 + 30, 30, MAROON);
                 DrawText("Pressione ENTER para reiniciar ou ESC para voltar ao menu", largura/2 - 280, altura/2 + 80, 20, DARKGRAY);
         }
