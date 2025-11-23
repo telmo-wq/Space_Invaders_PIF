@@ -8,6 +8,8 @@
 
 
 
+
+
 typedef enum {
     MENU = 0,
     GAMEPLAY = 1,
@@ -56,6 +58,7 @@ int main(){
     int ranking[11][5]={0};
     int cont_caracter=0;
     char nome_usuario[4];
+    int chave=1;
 
     recuperar_rank(ranking);
     struct tiro *n=NULL;
@@ -90,6 +93,7 @@ int main(){
 
             if ((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) && cont_caracter==3) {
                 pontos = 0;
+                chave=1;
                 status.vida = 4;
                 x = largura/2;
                 y = altura-50;
@@ -105,7 +109,10 @@ int main(){
                 lista[2] = nome_usuario[2];
                 lista[4]=pontos;
                 lista[3]=onda_atual;
-                rankear(ranking,lista);
+                if(chave){
+                    rankear(ranking,lista);
+                    chave=0;
+                }
             if(IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)){
                 pontos = 0;
                 status.vida = 4;
@@ -114,7 +121,7 @@ int main(){
                 LimparTiros(&n);
                 LimparInimigos(&inimigos);
                 currentScreen = GAMEPLAY;
-            } else if(IsKeyPressed(KEY_ESCAPE)){
+            } else if(IsKeyPressed(KEY_BACKSPACE)){
                 currentScreen = MENU;
             }
         } else if(currentScreen == GAMEPLAY){
@@ -132,7 +139,7 @@ int main(){
             }
             if(IsKeyPressed(KEY_E)){
                 Vector2 pos={x,y};
-                Atirar(&n, pos);
+                Atirar(&n, pos,0);
                 PlaySound(tiro); 
             }
             if(IsKeyPressed(KEY_ESCAPE)){
@@ -163,7 +170,10 @@ int main(){
                 lista[2] = nome_usuario[2];
                 lista[4]=pontos;
                 lista[3]=onda_atual;
-                rankear(ranking,lista);
+                if(chave){
+                    rankear(ranking,lista);
+                    chave=0;
+                }
                 currentScreen=GAMEWIN;
             }
         }
@@ -220,7 +230,7 @@ int main(){
                 break;
             case GAMEWIN:
 
-                DrawText("TODOS INIMIGOS DERROTADOS! PARABÉNS!", largura/2 - 150, altura/2 - 40, 60, GREEN);
+                DrawText("GANHOU MISERAVI", largura/2 - 150, altura/2 - 40, 60, GREEN);
                 DrawText(TextFormat("SCORE: %i", pontos), largura/2 - 120, altura/2 + 30, 30, MAROON);
                 DrawText("Pressione ENTER para reiniciar ou ESC para voltar ao menu", largura/2 - 280, altura/2 + 80, 20, DARKGRAY);
         }
@@ -244,7 +254,10 @@ int main(){
             if(min_x < 0) direct_inimigo = 1;
             else if(max_x > largura - 100) direct_inimigo = 0;
 
+            Atirar_inimigo(&n, &inimigos);
             Avancar_tiro(&n);
+            Vector2 pos={x,y};
+            levar_dano(&n,  pos, &status, nave);
             ChecarColisaoComInimigos(&n, &inimigos, &pontos, nave_inimigo);
         }
     }

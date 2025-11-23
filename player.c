@@ -11,7 +11,7 @@ struct nave_status
 
 void rankear(int (*mat)[5], int *nova) {
     
-    for(int i=1;i<10;i++){
+    for(int i=0;i<10;i++){
         if(mat[i][4]<nova[4]){
             for (int j = 9;j >=i; j--) {
                 for(int x=0;x<5;x++){
@@ -33,11 +33,9 @@ void levar_dano(struct tiro **tiros, Vector2 pos, struct nave_status *status, Te
     while(aux_tiro != NULL){
         Rectangle rectTiro = {aux_tiro->laser.x, aux_tiro->laser.y, 5, 15};
         Rectangle rectjogador= {pos.x, pos.y, nave.width, nave.height};
-        int acertou=0;
             
         if(CheckCollisionRecs(rectjogador, rectTiro)&& aux_tiro->tipo!=0){
             status->vida=(status->vida)-1;
-            acertou=1;
             struct tiro *temp_tiro = aux_tiro;
             if(ant_tiro == NULL){
                 *tiros = (*tiros)->next;
