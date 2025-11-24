@@ -3,16 +3,17 @@
 #include "tiro.h"
 #include <stdlib.h>
 
-struct tiro *CriarTiro(Vector2 pos){
+struct tiro *CriarTiro(Vector2 pos,int tipo){
     struct tiro *n=(struct tiro*)malloc(sizeof(struct tiro));
     n->laser=pos;
+    n->tipo=tipo;
     n->next=NULL;
     return n;
 }
 
-void Atirar(struct tiro **lista,Vector2 pos){
+void Atirar(struct tiro **lista,Vector2 pos, int tipo){
     struct tiro *aux=*lista;
-    struct tiro *novo=CriarTiro(pos);
+    struct tiro *novo=CriarTiro(pos, tipo);
     if(aux==NULL){
         *lista=novo;
     } else{
@@ -27,8 +28,13 @@ void Avancar_tiro(struct tiro **lista){
     if(aux!=NULL){
         while (aux!=NULL)
         {
-            aux->laser.y-=10;
-            aux=aux->next;
+            if(aux->tipo==0){
+                aux->laser.y-=10;
+                aux=aux->next;
+            }else{
+                aux->laser.y+=10;
+                aux=aux->next;
+            }
         }
 
     }
@@ -41,7 +47,7 @@ void checar_tiro(struct tiro **lista,Rectangle rectNaves_de_Bonus,int *ponto,flo
         while (aux!=NULL)
         {
             Rectangle rectTiro = {aux->laser.x,aux->laser.y, 5, 15};
-            if(CheckCollisionRecs(rectNaves_de_Bonus,rectTiro)){
+            if(CheckCollisionRecs(rectNaves_de_Bonus,rectTiro) && aux->tipo==0){
                 struct tiro *temp = aux;
                 if(ant == NULL){
                     (*lista) = (*lista)->next;
@@ -55,7 +61,7 @@ void checar_tiro(struct tiro **lista,Rectangle rectNaves_de_Bonus,int *ponto,flo
                     *pos=10;
                 }
                 free(temp);
-            } else if(aux->laser.y<0){
+            } else if(aux->laser.y<0 || aux->laser.y>1200){
                 struct tiro *temp = aux;
                 if(ant == NULL){
                     (*lista)=(*lista)->next;

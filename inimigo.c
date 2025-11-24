@@ -69,7 +69,7 @@ void ChecarColisaoComInimigos(struct tiro **tiros, struct inimigo **inimigos, in
             Rectangle rectInimigo = {aux_ini->pos_x, aux_ini->pos_y, 
                                      nave_inimigo.width, nave_inimigo.height};
             
-            if(CheckCollisionRecs(rectInimigo, rectTiro)){
+            if(CheckCollisionRecs(rectInimigo, rectTiro)&& aux_tiro->tipo==0){
                 struct inimigo *temp_ini = aux_ini;
                 if(ant_ini == NULL){
                     *inimigos = (*inimigos)->next;
@@ -138,5 +138,18 @@ void ChecarColisaoComPlayer(struct inimigo **inimigos, Rectangle rectJogador, st
             ant = aux;
             aux = aux->next;
         }
+    }
+}
+
+
+void Atirar_inimigo(struct tiro **n,struct inimigo **h){
+    struct inimigo *aux=*h;
+    while (aux!=NULL) {
+        int atira=GetRandomValue(0, 99);
+        if(atira==0){
+            Vector2 pos={aux->pos_x,aux->pos_y};
+                Atirar(n, pos,1); 
+        }
+        aux=aux->next;
     }
 }
