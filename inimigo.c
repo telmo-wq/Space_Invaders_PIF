@@ -6,6 +6,24 @@ struct inimigo *CriarInimigo(int pos_x, int pos_y){
     struct inimigo *novo = (struct inimigo*)malloc(sizeof(struct inimigo));
     novo->pos_x = pos_x;
     novo->pos_y = pos_y;
+    novo->direcao = GetRandomValue(0, 1);
+    int tipo=GetRandomValue(0, 3);
+    switch (tipo) {
+        case 0:
+        novo->textura = ;
+        break;
+        case 1:
+        novo->textura = ;
+        break;
+        case 2:
+        novo->textura = ;
+        break;
+        case 3:
+        novo->textura = ;
+        break;
+
+    }
+    novo->textura = ;
     novo->next = NULL;
     return novo;
 }
@@ -33,10 +51,42 @@ void LimparInimigos(struct inimigo **lista){
     *lista = NULL;
 }
 
-void AvancarInimigos(struct inimigo **lista, int direct, int largura){
+void colisao_entre_inimigos(struct inimigo **lista,struct inimigo *atual, Texture2D nave_inimiga){
+    struct inimigo *aux_ini = *lista;
+    Rectangle rectInimigo_atual= {atual->pos_x, atual->pos_y, 
+                                    (nave_inimiga.width)-50, (nave_inimiga.height)-50};
+    while(aux_ini != NULL){
+        Rectangle rectInimigo= {aux_ini->pos_x, aux_ini->pos_y, 
+                                    (nave_inimiga.width)-50, (nave_inimiga.height)-50};
+        if(CheckCollisionRecs(rectInimigo_atual, rectInimigo)){
+            if(atual->direcao==0){
+                atual->direcao=1;
+                aux_ini->direcao=0;
+            }else{
+                atual->direcao=0;
+                aux_ini->direcao=1;
+            }
+            break;
+        }
+        aux_ini=aux_ini->next;
+        
+    }
+
+}
+
+void AvancarInimigos(struct inimigo **lista, int largura,Texture2D nave_inimiga){
     struct inimigo *aux = *lista;
     while(aux != NULL){
-        if(direct){
+        colisao_entre_inimigos(lista, aux, nave_inimiga);
+        if(aux->pos_x<0){
+            aux->pos_y+=50;
+            aux->direcao=1;
+        } else if(aux->pos_x>largura-100){
+            aux->pos_y+=30;
+            aux->direcao=0;
+
+        }
+        if(aux->direcao==1){
             aux->pos_x += GetFrameTime() * 150;
         } else {
             aux->pos_x -= GetFrameTime() * 150;
@@ -55,7 +105,7 @@ void DesenhoInimigos(struct inimigo **lista, Texture2D nave_inimigo){
 
 
 
-void ChecarColisaoComInimigos(struct tiro **tiros, struct inimigo **inimigos, int *pontos, Texture2D nave_inimigo){
+void ChecarColisaoComInimigos(struct tiro **tiros, struct inimigo **inimigos, int *pontos, Texture2D nave_inimiga){
     struct tiro *aux_tiro = *tiros;
     struct tiro *ant_tiro = NULL;
     
@@ -67,7 +117,7 @@ void ChecarColisaoComInimigos(struct tiro **tiros, struct inimigo **inimigos, in
         while(aux_ini != NULL){
             Rectangle rectTiro = {aux_tiro->laser.x, aux_tiro->laser.y, 5, 15};
             Rectangle rectInimigo = {aux_ini->pos_x, aux_ini->pos_y, 
-                                     nave_inimigo.width, nave_inimigo.height};
+                                     (nave_inimiga.width)-20, (nave_inimiga.height)-20};
             
             if(CheckCollisionRecs(rectInimigo, rectTiro)&& aux_tiro->tipo==0){
                 struct inimigo *temp_ini = aux_ini;

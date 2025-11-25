@@ -9,6 +9,8 @@
 struct inimigo {
     int pos_x;
     int pos_y;
+    int direcao;
+    Texture2D textura;
     struct inimigo *next;
 };
 
@@ -16,7 +18,7 @@ struct inimigo {
 struct inimigo *CriarInimigo(int pos_x, int pos_y);
 void AdicionarInimigo(struct inimigo **lista, int pos_x, int pos_y);
 void LimparInimigos(struct inimigo **lista);
-void AvancarInimigos(struct inimigo **lista, int direct, int largura);
+void AvancarInimigos(struct inimigo **lista, int largura,Texture2D nave_inimiga);
 void DesenhoInimigos(struct inimigo **lista, Texture2D nave_inimigo);
 void Atirar_inimigo(struct tiro **n,struct inimigo **h);
 
