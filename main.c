@@ -168,7 +168,7 @@ int main(){
                 tempo_spawn = 0;
             }
 
-            if (onda_atual>10){
+            if (onda_atual>2){
                 int lista[5];
                 lista[0] = nome_usuario[0];
                 lista[1] = nome_usuario[1];

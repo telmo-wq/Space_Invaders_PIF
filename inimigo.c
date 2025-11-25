@@ -8,22 +8,6 @@ struct inimigo *CriarInimigo(int pos_x, int pos_y){
     novo->pos_y = pos_y;
     novo->direcao = GetRandomValue(0, 1);
     int tipo=GetRandomValue(0, 3);
-    switch (tipo) {
-        case 0:
-        novo->textura = ;
-        break;
-        case 1:
-        novo->textura = ;
-        break;
-        case 2:
-        novo->textura = ;
-        break;
-        case 3:
-        novo->textura = ;
-        break;
-
-    }
-    novo->textura = ;
     novo->next = NULL;
     return novo;
 }
