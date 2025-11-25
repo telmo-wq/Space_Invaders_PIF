@@ -49,7 +49,6 @@ int main(){
     Texture2D nave_inimigo=LoadTexture("sprites/Nave_de_bonus.png"); 
 
     struct inimigo *inimigos = NULL;
-    int direct_inimigo = 1;
     float tempo_spawn = 0;
     float intervalo_spawn = 2.0f;
     int onda_atual = 1;
@@ -247,11 +246,7 @@ int main(){
         EndDrawing();
 
         if(currentScreen == GAMEPLAY){
-            if(direct_inimigo){
-                AvancarInimigos(&inimigos, 1, largura);
-            } else {
-                AvancarInimigos(&inimigos, 0, largura);
-            }
+            AvancarInimigos(&inimigos, largura,nave_inimigo);
 
             struct inimigo *aux = inimigos;
             int min_x = largura, max_x = 0;
@@ -260,8 +255,6 @@ int main(){
                 if(aux->pos_x > max_x) max_x = aux->pos_x;
                 aux = aux->next;
             }
-            if(min_x < 0) direct_inimigo = 1;
-            else if(max_x > largura - 100) direct_inimigo = 0;
 
             Atirar_inimigo(&n, &inimigos);
             Avancar_tiro(&n);
