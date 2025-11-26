@@ -1,5 +1,5 @@
-#ifndef TESTE_TITULO.H
-#define TESTE_TITULO.H
+#ifndef TESTE_TITULO_H
+#define TESTE_TITULO_H
 
 #include <raylib.h>
 #include <stdlib.h>

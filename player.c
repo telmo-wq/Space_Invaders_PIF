@@ -1,5 +1,6 @@
 #include <raylib.h>
 #include <stdbool.h>
+#include <string.h>
 #include <stdio.h>
 #include "tiro.h"
 #include <stdlib.h>
@@ -42,6 +43,25 @@ void rankear(int (*mat)[5], int *nova) {
         }
 
     }
+
+void listar_rank(FILE *arquivo, int largura, int altura){
+    char *msg = "O RANKING ESTA VAZIO";
+    int fs = 30;
+    int w = MeasureText(msg, fs);
+    if (arquivo == NULL){
+        DrawText(msg, largura/2 - w/2, altura/2 - 40, fs, BLACK);
+        return;
+    }
+    char texto[100];
+
+    int pos = 10;
+
+    while (fgets(texto, 100, arquivo) != NULL){
+        msg = texto;
+        DrawText(msg, largura/2 - w/2, altura/2 - 40 + pos, fs, BLACK);
+        pos = pos + 40;
+    }
+}
 
 void levar_dano(struct tiro **tiros, Vector2 pos, struct nave_status *status, Texture2D nave){
     struct tiro *aux_tiro = *tiros;

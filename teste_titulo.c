@@ -8,7 +8,7 @@ void titulo(void)
     const int screenWidth = 800;
     const int screenHeight = 450;
 
-    InitWindow(screenWidth, screenHeight, "raylib [text] example - writing anim");
+    InitWindow(screenWidth, screenHeight, "Space Invaders");
 
     const char *fileName = "titulo.txt";
     char *message = LoadFileText(fileName);

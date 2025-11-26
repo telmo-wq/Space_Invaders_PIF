@@ -1,5 +1,6 @@
 #include <raylib.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include "inimigo.h"
 #include "tiro.h"
 #include <stdlib.h>
@@ -199,11 +200,15 @@ int main(){
             if(nome_valido==0){
                 DrawText("Nome Invalido", largura/2 - 250, (altura/2)-50, 20, MAROON);
             }
+                char *nomeArquivo = "matriz_ordenada.txt";
+                FILE *arquivo1 = fopen(nomeArquivo, "r");
                 DrawText("SPACE INVADERS", largura/2 - 200, (altura/2) - 300, 50, BLACK);
                 DrawRectangleLines((largura/2)-100, (altura/2) -50 ,70 , 30, BLACK);
                 DrawText(nome_usuario, (largura/2)-95 , (altura/2) -50 , 30, BLACK);
                 DrawText("Pressione ENTER ou SPACE para iniciar", largura/2 - 220, altura/2+ 30, 20, DARKGRAY);
                 DrawText("Use WASD para mover, E para atirar, ESC para voltar", largura/2 - 300, altura/2 + 60, 18, DARKGRAY);
+                listar_rank(arquivo1, largura, altura);
+                fclose(arquivo1);
                 break;
 
             case GAMEPLAY:
