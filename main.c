@@ -157,9 +157,11 @@ int main(){
             tempo_spawn += GetFrameTime();
             if(tempo_spawn >= intervalo_spawn && inimigos_derrotados < inimigos_na_onda){
                 int pos_x = 50 + rand() % (largura - 100);
-                AdicionarInimigo(&inimigos, pos_x, 30);
-                inimigos_derrotados++;
-                tempo_spawn = 0;
+                if(inimigo_existe(&inimigos,pos_x)){
+                    AdicionarInimigo(&inimigos, pos_x, 30);
+                    inimigos_derrotados++;
+                    tempo_spawn = 0;
+                }
             }
 
             if(inimigos_derrotados >= inimigos_na_onda && inimigos == NULL){

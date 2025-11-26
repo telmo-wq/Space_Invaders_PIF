@@ -207,3 +207,15 @@ void Atirar_inimigo(struct tiro **n,struct inimigo **h){
         aux=aux->next;
     }
 }
+
+int inimigo_existe(struct inimigo **lista, int x)
+{
+    struct inimigo *aux=*lista;
+    while(aux!=NULL){
+        if(aux->pos_x>x+10 &&aux->pos_x<x){
+            return 0;
+        }
+        aux=aux->next;
+    }
+    return 1;
+};

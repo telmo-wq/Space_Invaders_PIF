@@ -21,6 +21,7 @@ void LimparInimigos(struct inimigo **lista);
 void AvancarInimigos(struct inimigo **lista, int largura, int altura, struct nave_status *vida);
 void DesenhoInimigos(struct inimigo **lista);
 void Atirar_inimigo(struct tiro **n,struct inimigo **h);
+int inimigo_existe(struct inimigo **lista, int x);
 
 void ChecarColisaoComInimigos(struct tiro **tiros, struct inimigo **inimigos, int *pontos);
 void ChecarColisaoComPlayer(struct inimigo **inimigos, Rectangle rectJogador, struct nave_status *status);
