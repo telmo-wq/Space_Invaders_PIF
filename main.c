@@ -210,12 +210,12 @@ int main(){
         switch(currentScreen){
             case MENU:
             if(nome_valido==0){
-                DrawText("Nome Invalido", largura/2 - 250, (altura/2)-50, 20, MAROON);
+                DrawRectangleLines((largura/2)-80, (altura/2) -50 ,70 , 30, RED);
+            }else {
+                DrawRectangleLines((largura/2)-80, (altura/2) -50 ,70 , 30, GREEN);
             }
                 const char *msg1 = "Pressione ENTER ou SPACE para iniciar";
 
-                DrawText("SPACE INVADERS", largura/2 - 200, (altura/2) - 300, 50, BLACK);
-                DrawRectangleLines((largura/2)-80, (altura/2) -50 ,70 , 30, GREEN);
                 DrawText(nome_usuario, (largura/2)-80 , (altura/2) -50 , 30, GREEN);
                 DrawText(msg1, largura/2 - 120, altura/2+ 30, 20, DARKGRAY);
                 DrawText("Use WASD para mover, E para atirar, ESC para voltar", largura/2 - 160, altura/2 + 60, 18, DARKGRAY);
