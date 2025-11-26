@@ -199,7 +199,7 @@ void ChecarColisaoComPlayer(struct inimigo **inimigos, Rectangle rectJogador, st
 void Atirar_inimigo(struct tiro **n,struct inimigo **h){
     struct inimigo *aux=*h;
     while (aux!=NULL) {
-        int atira=GetRandomValue(0, 99);
+        int atira=GetRandomValue(0, 20);
         if(atira==0){
             Vector2 pos={aux->pos_x,aux->pos_y};
                 Atirar(n, pos,1); 

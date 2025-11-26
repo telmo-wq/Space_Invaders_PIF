@@ -169,7 +169,7 @@ int main(){
                 tempo_spawn = 0;
             }
 
-            if (onda_atual>1){
+            if (onda_atual>3){
                 int lista[5];
                 lista[0] = nome_usuario[0];
                 lista[1] = nome_usuario[1];
@@ -213,8 +213,8 @@ int main(){
                 const char *msg1 = "Pressione ENTER ou SPACE para iniciar";
 
                 DrawText("SPACE INVADERS", largura/2 - 200, (altura/2) - 300, 50, BLACK);
-                DrawRectangleLines((largura/2)-80, (altura/2) -50 ,70 , 30, BLACK);
-                DrawText(nome_usuario, (largura/2)-95 , (altura/2) -50 , 30, BLACK);
+                DrawRectangleLines((largura/2)-80, (altura/2) -50 ,70 , 30, GREEN);
+                DrawText(nome_usuario, (largura/2)-80 , (altura/2) -50 , 30, GREEN);
                 DrawText(msg1, largura/2 - 120, altura/2+ 30, 20, DARKGRAY);
                 DrawText("Use WASD para mover, E para atirar, ESC para voltar", largura/2 - 160, altura/2 + 60, 18, DARKGRAY);
                 listar_rank(ranking);

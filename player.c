@@ -61,11 +61,11 @@ void listar_rank(int mat[11][5]) {
             cellH
         };
 
-        DrawRectangleLinesEx(cell, 1, BLACK);
+        DrawRectangleLinesEx(cell, 1, RED);
 
         snprintf(texto, sizeof(texto),"%c%c%c  |  %d   |  %d",
             (char)mat[r][0],(char)mat[r][1],(char)mat[r][2],mat[r][3],mat[r][4]);
-        DrawText(texto, cell.x + 10, cell.y + 10, 20, BLACK);
+        DrawText(texto, cell.x + 10, cell.y + 10, 20, RED);
     }
 }
 
