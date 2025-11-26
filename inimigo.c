@@ -8,6 +8,20 @@ struct inimigo *CriarInimigo(int pos_x, int pos_y){
     novo->pos_y = pos_y;
     novo->direcao = GetRandomValue(0, 1);
     int tipo=GetRandomValue(0, 3);
+    switch (tipo) {
+        case 0:
+        novo->textura=LoadTexture("sprites/naves/Bomber.png");
+        break;
+        case 1:
+        novo->textura=LoadTexture("sprites/naves/Fighter.png");
+        break;
+        case 2:
+        novo->textura=LoadTexture("sprites/naves/Frigate.png");
+        break;
+        case 3:
+        novo->textura=LoadTexture("sprites/naves/Support.png");
+        break;
+    }
     novo->next = NULL;
     return novo;
 }
@@ -30,18 +44,19 @@ void LimparInimigos(struct inimigo **lista){
     while(aux != NULL){
         struct inimigo *temp = aux;
         aux = aux->next;
+        UnloadTexture(temp->textura);
         free(temp);
     }
     *lista = NULL;
 }
 
-void colisao_entre_inimigos(struct inimigo **lista,struct inimigo *atual, Texture2D nave_inimiga){
+void colisao_entre_inimigos(struct inimigo **lista,struct inimigo *atual){
     struct inimigo *aux_ini = *lista;
     Rectangle rectInimigo_atual= {atual->pos_x, atual->pos_y, 
-                                    (nave_inimiga.width)-50, (nave_inimiga.height)-50};
+                                    (aux_ini->textura.width)-50, (aux_ini->textura.height)-50};
     while(aux_ini != NULL){
         Rectangle rectInimigo= {aux_ini->pos_x, aux_ini->pos_y, 
-                                    (nave_inimiga.width)-50, (nave_inimiga.height)-50};
+                                    (aux_ini->textura.width)-50, (aux_ini->textura.height)-50};
         if(CheckCollisionRecs(rectInimigo_atual, rectInimigo)){
             if(atual->direcao==0){
                 atual->direcao=1;
@@ -58,10 +73,10 @@ void colisao_entre_inimigos(struct inimigo **lista,struct inimigo *atual, Textur
 
 }
 
-void AvancarInimigos(struct inimigo **lista, int largura, int altura, Texture2D nave_inimiga, struct nave_status *vida){
+void AvancarInimigos(struct inimigo **lista, int largura, int altura, struct nave_status *vida){
     struct inimigo *aux = *lista;
     while(aux != NULL){
-        colisao_entre_inimigos(lista, aux, nave_inimiga);
+        colisao_entre_inimigos(lista, aux);
         if(aux->pos_x<0){
             aux->pos_y+=50;
             if (aux->pos_y > altura){
@@ -85,17 +100,15 @@ void AvancarInimigos(struct inimigo **lista, int largura, int altura, Texture2D 
     }
 }
 
-void DesenhoInimigos(struct inimigo **lista, Texture2D nave_inimigo){
+void DesenhoInimigos(struct inimigo **lista){
     struct inimigo *aux = *lista;
     while(aux != NULL){
-        DrawTexture(nave_inimigo, aux->pos_x, aux->pos_y, WHITE);
+        DrawTexture(aux->textura, aux->pos_x, aux->pos_y, WHITE);
         aux = aux->next;
     }
 }
 
-
-
-void ChecarColisaoComInimigos(struct tiro **tiros, struct inimigo **inimigos, int *pontos, Texture2D nave_inimiga){
+void ChecarColisaoComInimigos(struct tiro **tiros, struct inimigo **inimigos, int *pontos){
     struct tiro *aux_tiro = *tiros;
     struct tiro *ant_tiro = NULL;
     
@@ -107,7 +120,7 @@ void ChecarColisaoComInimigos(struct tiro **tiros, struct inimigo **inimigos, in
         while(aux_ini != NULL){
             Rectangle rectTiro = {aux_tiro->laser.x, aux_tiro->laser.y, 5, 15};
             Rectangle rectInimigo = {aux_ini->pos_x, aux_ini->pos_y, 
-                                     (nave_inimiga.width)-20, (nave_inimiga.height)-20};
+                                     (aux_ini->textura.width)-20, (aux_ini->textura.height)-20};
             
             if(CheckCollisionRecs(rectInimigo, rectTiro)&& aux_tiro->tipo==0){
                 struct inimigo *temp_ini = aux_ini;
@@ -118,6 +131,7 @@ void ChecarColisaoComInimigos(struct tiro **tiros, struct inimigo **inimigos, in
                     ant_ini->next = aux_ini->next;
                     aux_ini = aux_ini->next;
                 }
+                UnloadTexture(temp_ini->textura);
                 free(temp_ini);
                 *pontos += 100;
                 acertou = 1;
@@ -155,13 +169,13 @@ void ChecarColisaoComInimigos(struct tiro **tiros, struct inimigo **inimigos, in
     }
 }
 
-void ChecarColisaoComPlayer(struct inimigo **inimigos, Rectangle rectJogador, struct nave_status *status, Texture2D nave_inimigo){
+void ChecarColisaoComPlayer(struct inimigo **inimigos, Rectangle rectJogador, struct nave_status *status){
     struct inimigo *aux = *inimigos;
     struct inimigo *ant = NULL;
     
     while(aux != NULL){
         Rectangle rectInimigo = {aux->pos_x, aux->pos_y, 
-                                 nave_inimigo.width, nave_inimigo.height};
+                                 aux->textura.width, aux->textura.height};
         
         if(CheckCollisionRecs(rectInimigo, rectJogador)){
             status->vida -= 1;

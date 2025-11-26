@@ -197,7 +197,7 @@ int main(){
         Rectangle rectNaves_Jogador = { x, y, nave.width, nave.height };
 
         if(currentScreen == GAMEPLAY){
-            ChecarColisaoComPlayer(&inimigos, rectNaves_Jogador, &status, nave_inimigo);
+            ChecarColisaoComPlayer(&inimigos, rectNaves_Jogador, &status);
         }
 
         BeginDrawing();
@@ -239,7 +239,7 @@ int main(){
                         break;
                 }
 
-                DesenhoInimigos(&inimigos, nave_inimigo);
+                DesenhoInimigos(&inimigos);
                 desenho_tiro(&n, piu);
                 break;
 
@@ -260,7 +260,7 @@ int main(){
         EndDrawing();
 
         if(currentScreen == GAMEPLAY){
-            AvancarInimigos(&inimigos, largura, altura-100, nave_inimigo, &status);
+            AvancarInimigos(&inimigos, largura, altura-100, &status);
 
             struct inimigo *aux = inimigos;
             int min_x = largura, max_x = 0;
@@ -274,7 +274,7 @@ int main(){
             Avancar_tiro(&n);
             Vector2 pos={x,y};
             levar_dano(&n,  pos, &status, nave);
-            ChecarColisaoComInimigos(&n, &inimigos, &pontos, nave_inimigo);
+            ChecarColisaoComInimigos(&n, &inimigos, &pontos);
         }
     }
     salvar_rank(ranking);
