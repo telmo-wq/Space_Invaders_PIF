@@ -169,7 +169,7 @@ int main(){
                 tempo_spawn = 0;
             }
 
-            if (onda_atual>3){
+            if (onda_atual>10){
                 int lista[5];
                 lista[0] = nome_usuario[0];
                 lista[1] = nome_usuario[1];
@@ -247,7 +247,7 @@ int main(){
 
                 DrawText("GAME OVER", largura/2 - 150, altura/2 - 40, 60, RED);
                 DrawText(TextFormat("SCORE: %i | ONDA: %i", pontos, onda_atual), largura/2 - 120, altura/2 + 30, 30, MAROON);
-                DrawText("Pressione ENTER para reiniciar ou ESC para voltar ao menu", largura/2 - 280, altura/2 + 80, 20, DARKGRAY);
+                DrawText("Pressione ENTER para reiniciar ou BACKSPACE para voltar ao menu", largura/2 - 280, altura/2 + 80, 20, DARKGRAY);
 
                 break;
             case GAMEWIN:
