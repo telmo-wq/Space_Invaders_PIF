@@ -182,6 +182,16 @@ int main(){
                 }
                 currentScreen=GAMEWIN;
             }
+        }else if (currentScreen == GAMEWIN){
+            if (IsKeyPressed(KEY_ENTER)){
+                pontos = 0;
+                status.vida = 4;
+                x = largura/2;
+                y = altura-50;
+                LimparTiros(&n);
+                LimparInimigos(&inimigos);
+                currentScreen = MENU;
+            }
         }
 
         Rectangle rectNaves_Jogador = { x, y, nave.width, nave.height };
@@ -200,11 +210,13 @@ int main(){
             if(nome_valido==0){
                 DrawText("Nome Invalido", largura/2 - 250, (altura/2)-50, 20, MAROON);
             }
+                const char *msg1 = "Pressione ENTER ou SPACE para iniciar";
+
                 DrawText("SPACE INVADERS", largura/2 - 200, (altura/2) - 300, 50, BLACK);
-                DrawRectangleLines((largura/2)-100, (altura/2) -50 ,70 , 30, BLACK);
+                DrawRectangleLines((largura/2)-80, (altura/2) -50 ,70 , 30, BLACK);
                 DrawText(nome_usuario, (largura/2)-95 , (altura/2) -50 , 30, BLACK);
-                DrawText("Pressione ENTER ou SPACE para iniciar", largura/2 - 220, altura/2+ 30, 20, DARKGRAY);
-                DrawText("Use WASD para mover, E para atirar, ESC para voltar", largura/2 - 300, altura/2 + 60, 18, DARKGRAY);
+                DrawText(msg1, largura/2 - 120, altura/2+ 30, 20, DARKGRAY);
+                DrawText("Use WASD para mover, E para atirar, ESC para voltar", largura/2 - 160, altura/2 + 60, 18, DARKGRAY);
                 listar_rank(ranking);
                 break;
 
@@ -240,15 +252,15 @@ int main(){
                 break;
             case GAMEWIN:
 
-                DrawText("GANHOU MISERAVI", largura/2 - 150, altura/2 - 40, 60, GREEN);
+                DrawText("TODAS AS ONDAS DESTRUIDAS!", largura/2 - 150, altura/2 - 40, 60, GREEN);
                 DrawText(TextFormat("SCORE: %i", pontos), largura/2 - 120, altura/2 + 30, 30, MAROON);
-                DrawText("Pressione ENTER para reiniciar ou ESC para voltar ao menu", largura/2 - 280, altura/2 + 80, 20, DARKGRAY);
+                DrawText("Pressione ENTER para reiniciar", largura/2 - 280, altura/2 + 80, 20, DARKGRAY);
         }
 
         EndDrawing();
 
         if(currentScreen == GAMEPLAY){
-            AvancarInimigos(&inimigos, largura,nave_inimigo);
+            AvancarInimigos(&inimigos, largura, altura-100, nave_inimigo, &status);
 
             struct inimigo *aux = inimigos;
             int min_x = largura, max_x = 0;

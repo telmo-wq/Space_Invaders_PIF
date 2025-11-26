@@ -58,15 +58,21 @@ void colisao_entre_inimigos(struct inimigo **lista,struct inimigo *atual, Textur
 
 }
 
-void AvancarInimigos(struct inimigo **lista, int largura,Texture2D nave_inimiga){
+void AvancarInimigos(struct inimigo **lista, int largura, int altura, Texture2D nave_inimiga, struct nave_status *vida){
     struct inimigo *aux = *lista;
     while(aux != NULL){
         colisao_entre_inimigos(lista, aux, nave_inimiga);
         if(aux->pos_x<0){
             aux->pos_y+=50;
+            if (aux->pos_y > altura){
+                vida->vida = 0;
+            }
             aux->direcao=1;
         } else if(aux->pos_x>largura-100){
-            aux->pos_y+=30;
+            aux->pos_y+=50;
+            if (aux->pos_y > altura){
+                vida->vida = 0;
+            }
             aux->direcao=0;
 
         }
