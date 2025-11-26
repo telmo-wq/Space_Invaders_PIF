@@ -44,22 +44,28 @@ void rankear(int (*mat)[5], int *nova) {
 
     }
 
-void listar_rank(FILE *arquivo, int largura, int altura){
-    char *msg = "O RANKING ESTA VAZIO";
-    int fs = 30;
-    int w = MeasureText(msg, fs);
-    if (arquivo == NULL){
-        DrawText(msg, largura/2 - w/2, altura/2 - 40, fs, BLACK);
-        return;
-    }
-    char texto[100];
+void listar_rank(int mat[11][5]) {
+    int tableX = 50;
+    int tableY = 50;
+    int cellW = 200;  
+    int cellH = 40;
 
-    int pos = 10;
+    char texto[64];
 
-    while (fgets(texto, 100, arquivo) != NULL){
-        msg = texto;
-        DrawText(msg, largura/2 - w/2, altura/2 - 40 + pos, fs, BLACK);
-        pos = pos + 40;
+    for (int r = 0; r < 11; r++) {
+
+        Rectangle cell = (Rectangle) {
+            tableX,
+            tableY + r * cellH,
+            cellW,
+            cellH
+        };
+
+        DrawRectangleLinesEx(cell, 1, BLACK);
+
+        snprintf(texto, sizeof(texto),"%c%c%c  |  %d   |  %d",
+            (char)mat[r][0],(char)mat[r][1],(char)mat[r][2],mat[r][3],mat[r][4]);
+        DrawText(texto, cell.x + 10, cell.y + 10, 20, BLACK);
     }
 }
 
