@@ -68,7 +68,7 @@ void AvancarInimigos(struct inimigo **lista, int largura, int altura, Texture2D 
                 vida->vida = 0;
             }
             aux->direcao=1;
-        } else if(aux->pos_x>largura-100){
+        } else if(aux->pos_x>largura){
             aux->pos_y+=50;
             if (aux->pos_y > altura){
                 vida->vida = 0;
