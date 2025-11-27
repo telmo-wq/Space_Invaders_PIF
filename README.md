@@ -35,7 +35,7 @@ sudo apt install libasound2-dev mesa-common-dev libx11-dev libxrandr-dev libxi-d
 Para instalar a raylib e configurá-la:
 ```bash
        
-git clone raylib
+git clone --depth 1 https://github.com/raysan5/raylib.git raylib
 cd raylib/src
 make PLATFORM=PLATFORM_DESKTOP 
 sudo make install
