@@ -108,7 +108,7 @@ void DesenhoInimigos(struct inimigo **lista){
     }
 }
 
-void ChecarColisaoComInimigos(struct tiro **tiros, struct inimigo **inimigos, int *pontos){
+void ChecarColisaoComTiros(struct tiro **tiros, struct inimigo **inimigos, int *pontos){
     struct tiro *aux_tiro = *tiros;
     struct tiro *ant_tiro = NULL;
     

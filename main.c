@@ -276,7 +276,7 @@ int main(){
             Avancar_tiro(&n);
             Vector2 pos={x,y};
             levar_dano(&n,  pos, &status, nave);
-            ChecarColisaoComInimigos(&n, &inimigos, &pontos);
+            ChecarColisaoComTiros(&n, &inimigos, &pontos);
         }
     }
     salvar_rank(ranking);
