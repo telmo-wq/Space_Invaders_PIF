@@ -4,6 +4,11 @@ Um fan remake do famoso arcade Space Invaders feito por alunos de Ciência da Co
 - Jogo programado em C utilizando da biblioteca raylib
 - Estruturas implementadas: structs, matrizes, alocação dinâmica, listas encadeadas, manipulação de arquivo e ponteiros
 
+Desenvolvido em equipe por:
+- Telmo Melo Ferreira Calheiros
+- Dávila Peixoto Reis
+- Sofia Pan Yu
+
 
 # Como Jogar
 
