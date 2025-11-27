@@ -57,6 +57,8 @@ Em seguida, rode ./main
 
 # Screencast do nosso jogo
 
+[Veja o vídeo do jogo rodando em Windows](https://www.youtube.com/watch?v=vYYVyZy5MMg)
+
 
 
 
