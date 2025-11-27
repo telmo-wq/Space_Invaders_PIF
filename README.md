@@ -39,7 +39,22 @@ sudo make install
 Em seguida, clone o projeto
 
 ```bash
-git clone
+git clone https://github.com/telmo-wq/Space_Invaders_PIF.git
+cd Space_Invaders_PIF
+code .
+
+```
+
+Abra um terminal e rode a linha de comando para compilar o código
+
+Comando para Windows:
+C:\raylib\w64devkit\bin\mingw32-make.exe RAYLIB_PATH=C:/raylib/raylib PROJECT_NAME=jogo OBJS="main.o tiro.o inimigo.o player.o teste_titulo.o" BUILD_MODE=DEBUG
+
+Comando para Linux:
+gcc *.c -o main -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 2>&1
+
+Em seguida, rode ./main
+
 
 
 
