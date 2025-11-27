@@ -55,6 +55,10 @@ gcc *.c -o main -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 2>&1
 
 Em seguida, rode ./main
 
+# Screencast do nosso jogo
+
+
+
 
 
 
